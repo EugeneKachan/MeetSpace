@@ -1,11 +1,11 @@
-# MeetSpase - Backend Setup Instructions
+# MeetSpace - Backend Setup Instructions
 
 ## Overview
 The backend is structured using a layered architecture with the following projects:
-- **MeetSpase.API**: ASP.NET Core Web API (entry point)
-- **MeetSpase.Domain**: Domain entities and interfaces
-- **MeetSpase.Application**: CQRS commands, queries, and DTOs
-- **MeetSpase.Infrastructure**: Data access and repositories
+- **MeetSpace.API**: ASP.NET Core Web API (entry point)
+- **MeetSpace.Domain**: Domain entities and interfaces
+- **MeetSpace.Application**: CQRS commands, queries, and DTOs
+- **MeetSpace.Infrastructure**: Data access and repositories
 
 ## Prerequisites
 - .NET 8 SDK or later
@@ -20,17 +20,17 @@ dotnet restore
 ```
 
 ### 2. Configure Database Connection
-Update the connection string in `MeetSpase.API/appsettings.json`:
+Update the connection string in `MeetSpace.API/appsettings.json`:
 ```json
 "ConnectionStrings": {
-  "DefaultConnection": "Server=YOUR_SERVER;Database=MeetSpase;Trusted_Connection=true;"
+  "DefaultConnection": "Server=YOUR_SERVER;Database=MeetSpace;Trusted_Connection=true;"
 }
 ```
 
 ### 3. Apply Data Migrations
 ```bash
-cd Backend/MeetSpase.API
-dotnet ef database update --project ../MeetSpase.Infrastructure
+cd Backend/MeetSpace.API
+dotnet ef database update --project ../MeetSpace.Infrastructure
 ```
 
 ### 4. Run the Application

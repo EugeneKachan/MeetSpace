@@ -1,7 +1,7 @@
 {
   "name": "meetspace-ui",
   "version": "1.0.0",
-  "description": "MeetSpase - Meeting Room Booking System UI",
+  "description": "MeetSpace - Meeting Room Booking System UI",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",

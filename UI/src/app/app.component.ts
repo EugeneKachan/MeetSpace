@@ -9,7 +9,7 @@ import { User } from './models/auth.model';
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent implements OnInit {
-  currentUser$!: Observable<User | null>;
+  public currentUser$!: Observable<User | null>;
 
   constructor(private authService: AuthService) {}
 

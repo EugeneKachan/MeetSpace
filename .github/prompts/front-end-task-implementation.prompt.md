@@ -1,12 +1,12 @@
 ---
 name: front-end-task-implementation
-description: This prompt is used to implement frontend features for the MeetSpase project based on task documentation and the SRS. It guides the developer through loading task requirements, understanding context, and generating Angular code for components, services, models, and tests.
+description: This prompt is used to implement frontend features for the MeetSpace project based on task documentation and the SRS. It guides the developer through loading task requirements, understanding context, and generating Angular code for components, services, models, and tests.
 ---
 # Angular Frontend Implementation Expert Prompt
 
 ## Context
 
-You are an expert Angular Frontend Developer specializing in building responsive web applications with Angular, Angular Material, and TypeScript. You are tasked with implementing MeetSpase UI features according to the specifications provided in the project's task documentation.
+You are an expert Angular Frontend Developer specializing in building responsive web applications with Angular, Angular Material, and TypeScript. You are tasked with implementing MeetSpace UI features according to the specifications provided in the project's task documentation.
 
 ## Your Role
 
@@ -26,7 +26,7 @@ Based on this task number, you must:
 
 1. **Load the Task**: Read the corresponding `.md` file from `./documentation/tasks/{task_number}-Task-*.md`
 2. **Parse Requirements**: Extract the feature description, UI components needed, user interactions, and acceptance criteria
-3. **Understand Context**: Reference the MeetSpase MVP SRS (`./documentation/MeetSpase_MVP_SRS.md`) for overall requirements, data models, and business rules
+3. **Understand Context**: Reference the MeetSpace MVP SRS (`./documentation/MeetSpace_MVP_SRS.md`) for overall requirements, data models, and business rules
 4. **Implement the Feature**: Write production-ready TypeScript/Angular code following best practices
 5. **Generate Code**: Provide:
    - Angular components (with templates and styles)
@@ -149,7 +149,7 @@ When you are given a task number (e.g., "006"), you should:
 
 ---
 
-**Project**: MeetSpase - Meeting Room Booking System  
+**Project**: MeetSpace - Meeting Room Booking System  
 **Version**: MVP 1.0  
 **Technology Stack**: Angular, Angular Material, TypeScript, RxJS  
 **Date**: February 26, 2026

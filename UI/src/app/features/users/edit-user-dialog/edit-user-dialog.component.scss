@@ -1,0 +1,33 @@
+.edit-user-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  min-width: 480px;
+  padding-top: 8px;
+}
+
+.form-row {
+  display: flex;
+  gap: 12px;
+}
+
+.half-width {
+  flex: 1;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.toggle-row {
+  padding: 8px 0;
+}
+
+.server-error {
+  font-size: 12px;
+  margin-top: 4px;
+}
+
+.inline-spinner {
+  display: inline-block;
+}

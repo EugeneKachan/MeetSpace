@@ -1,9 +1,96 @@
-# MeetSpase - User Requests History
+# MeetSpace - User Requests History
 
-**Maintained**: February 26, 2026  
-**Project**: MeetSpase - Meeting Room Booking System
+**Maintained**: February 27, 2026  
+**Project**: MeetSpace - Meeting Room Booking System
 
 This document preserves a chronological record of all user requests made during the development process.
+
+---
+
+## Session: February 27, 2026 (Task 004 - Edit User)
+
+### Request 2: Implement Edit User functionality
+**Time**: February 27, 2026
+**Request**: "Implement Edit user functional"
+
+**Outcome**:
+- Backend: `UpdateUserCommand` + validator + handler (`PUT /api/users/{id}`, Admin only). Handler updates name, email, active flag via `UserManager`, swaps role if changed, throws `KeyNotFoundException` (→ 404) on missing user and `InvalidOperationException` (→ 409) on duplicate email. Global exception handler in `Program.cs` extended to cover these cases.
+- Frontend: `UpdateUserRequest` interface added to models. `updateUser()` added to `UsersService`. `EditUserDialogComponent` (pre-populated reactive form, no password field). Table `actions` column with edit icon button per row. On save, row is patched in-place without a full reload.
+
+**Files Created**:
+- Backend/MeetSpace.Application/Features/Users/UpdateUser/UpdateUserCommand.cs
+- Backend/MeetSpace.Application/Features/Users/UpdateUser/UpdateUserCommandValidator.cs
+- Backend/MeetSpace.Application/Features/Users/UpdateUser/UpdateUserCommandHandler.cs
+- UI/src/app/features/users/edit-user-dialog/edit-user-dialog.component.ts
+- UI/src/app/features/users/edit-user-dialog/edit-user-dialog.component.html
+- UI/src/app/features/users/edit-user-dialog/edit-user-dialog.component.scss
+
+**Files Modified**:
+- Backend/MeetSpace.API/Controllers/UsersController.cs (added PUT endpoint)
+- Backend/MeetSpace.API/Program.cs (KeyNotFoundException → 404, "already in use" → 409)
+- UI/src/app/core/services/users.service.ts (added updateUser())
+- UI/src/app/models/entities.model.ts (added UpdateUserRequest)
+- UI/src/app/features/users/user-management/user-management.component.ts (openEditUserDialog)
+- UI/src/app/features/users/user-management/user-management.component.html (actions column)
+- UI/src/app/features/users/users.module.ts (EditUserDialogComponent, MatTooltipModule)
+
+### Request 1: Add users list table
+**Time**: February 27, 2026
+**Request**: "Add users list table to just created feature"
+
+**Outcome**:
+- Backend: `GetUsersQuery` + handler (`GET /api/users`, Admin only) returning `IReadOnlyList<UserDto>` ordered by last/first name, with role resolved via `GetRolesAsync`.
+- Frontend: `getUsers()` added to `UsersService`. `UserManagementComponent` refactored to load on init using `MatTableDataSource` with sorting, pagination and client-side filter. Table columns: avatar initials + name, email, role chip (color-coded), active/inactive badge, created date. Empty state and error card included.
+
+**Files Created**:
+- Backend/MeetSpace.Application/Features/Users/GetUsers/GetUsersQuery.cs
+- Backend/MeetSpace.Application/Features/Users/GetUsers/GetUsersQueryHandler.cs
+
+**Files Modified**:
+- Backend/MeetSpace.API/Controllers/UsersController.cs (added GET endpoint)
+- UI/src/app/core/services/users.service.ts (added getUsers())
+- UI/src/app/models/entities.model.ts (added createdAt to User interface)
+- UI/src/app/features/users/user-management/user-management.component.ts (table logic)
+- UI/src/app/features/users/user-management/user-management.component.html (full table template)
+- UI/src/app/features/users/user-management/user-management.component.scss (table styles)
+- UI/src/app/features/users/users.module.ts (MatTableModule, MatSortModule, MatPaginatorModule, MatProgressBarModule)
+
+---
+
+## Session: February 27, 2026 (Task 003 - Create User)
+
+### Request 1: Implement Task 003 — Create User (Backend + Frontend)
+**Time**: February 27, 2026
+**Request**: Implement Task 003 — Create User feature for both backend and frontend.
+
+**Outcome**:
+- Backend: CQRS command handler using `UserManager<ApplicationUser>`, FluentValidation rules, `ValidationBehavior<TRequest,TResponse>` pipeline, `POST /api/users` endpoint (Admin only, returns 201 Created).
+- Frontend: `UsersService` calling the endpoint, `UserManagementComponent` (lazy-loaded at `/users`, Admin-only route), `CreateUserDialogComponent` (reactive form in Material dialog) with full validation, error handling, and snackbar on success.
+- Dashboard Users card wired with `routerLink="/users"` for Admin users.
+
+**Files Created**:
+- Backend/MeetSpace.Application/Features/Users/CreateUser/CreateUserCommand.cs
+- Backend/MeetSpace.Application/Features/Users/CreateUser/CreateUserCommandValidator.cs
+- Backend/MeetSpace.Application/Features/Users/CreateUser/CreateUserCommandHandler.cs
+- Backend/MeetSpace.Application/Behaviors/ValidationBehavior.cs
+- Backend/MeetSpace.API/Controllers/UsersController.cs
+- UI/src/app/core/services/users.service.ts
+- UI/src/app/features/users/users.module.ts
+- UI/src/app/features/users/users-routing.module.ts
+- UI/src/app/features/users/user-management/user-management.component.ts
+- UI/src/app/features/users/user-management/user-management.component.html
+- UI/src/app/features/users/user-management/user-management.component.scss
+- UI/src/app/features/users/create-user-dialog/create-user-dialog.component.ts
+- UI/src/app/features/users/create-user-dialog/create-user-dialog.component.html
+- UI/src/app/features/users/create-user-dialog/create-user-dialog.component.scss
+
+**Files Modified**:
+- Backend/MeetSpace.Application/DependencyInjection.cs (registered ValidationBehavior pipeline)
+- Backend/MeetSpace.API/Program.cs (FluentValidation using, global exception handler)
+- UI/src/app/app-routing.module.ts (added /users Admin-only route)
+- UI/src/app/features/dashboard/dashboard.module.ts (added RouterModule)
+- UI/src/app/features/dashboard/dashboard.component.html (wired Users card with routerLink)
+- UI/src/app/models/entities.model.ts (added User and CreateUserRequest interfaces)
 
 ---
 
@@ -23,10 +110,10 @@ This document preserves a chronological record of all user requests made during 
 
 ### Request 1: Fix task doc admin identifier to match implementation
 **Time**: February 27, 2026
-**Request**: PR review feedback — task doc says `Default user: admin` but seeding uses email-based identity (`admin@meetspase.com`). Update doc to match actual identifier and avoid documenting a real default password.
+**Request**: PR review feedback — task doc says `Default user: admin` but seeding uses email-based identity (`admin@MeetSpace.com`). Update doc to match actual identifier and avoid documenting a real default password.
 
 **Outcome**:
-- Updated `Default user: admin` → `Default admin email: admin@meetspase.com (change password after first login)`
+- Updated `Default user: admin` → `Default admin email: admin@MeetSpace.com (change password after first login)`
 
 **Files Affected**:
 - documentation/tasks/002-Task-Authorization.md
@@ -44,7 +131,7 @@ This document preserves a chronological record of all user requests made during 
 - All missing-parameter cases now return a proper RFC 6749-compliant `invalid_request` OAuth error response instead of throwing a `NullReferenceException`
 
 **Files Modified**:
-- Backend/MeetSpase.API/Controllers/AuthController.cs
+- Backend/MeetSpace.API/Controllers/AuthController.cs
 
 ---
 
@@ -62,9 +149,9 @@ This document preserves a chronological record of all user requests made during 
 - In non-Development environments, the password must be supplied via environment variable (`AdminSeed__Password`), Azure Key Vault, or other secret storage
 
 **Files Affected**:
-- Backend/MeetSpase.Infrastructure/Data/DbSeeder.cs
-- Backend/MeetSpase.API/Program.cs
-- Backend/MeetSpase.API/appsettings.Development.json
+- Backend/MeetSpace.Infrastructure/Data/DbSeeder.cs
+- Backend/MeetSpace.API/Program.cs
+- Backend/MeetSpace.API/appsettings.Development.json
 
 ---
 
@@ -81,32 +168,32 @@ This document preserves a chronological record of all user requests made during 
 - `DbSeeder` seeds three roles (Employee, OfficeManager, Admin) and a default admin via `UserManager`
 - `JwtService` is async; retrieves roles from `UserManager.GetRolesAsync` for JWT claims
 - `AddIdentityCore<ApplicationUser>` configured with password policy; no cookie auth conflicts with JWT
-- Default admin: `admin@meetspase.com` / `Admin@123`
+- Default admin: `admin@MeetSpace.com` / `Admin@123`
 
 **Files Created**:
-- Backend/MeetSpase.Domain/Enums/UserRole.cs (`UserRoles` static constants)
-- Backend/MeetSpase.Domain/Entities/User.cs (`ApplicationUser : IdentityUser`)
-- Backend/MeetSpase.Application/Interfaces/IJwtService.cs
-- Backend/MeetSpase.Application/Interfaces/IUserRepository.cs (stub, superseded by UserManager)
-- Backend/MeetSpase.Application/Features/Auth/Login/LoginCommand.cs
-- Backend/MeetSpase.Application/Features/Auth/Login/LoginResponse.cs
-- Backend/MeetSpase.Application/Features/Auth/Login/LoginCommandHandler.cs
-- Backend/MeetSpase.Application/Features/Auth/Login/LoginCommandValidator.cs
-- Backend/MeetSpase.Application/DependencyInjection.cs
-- Backend/MeetSpase.Infrastructure/Data/AppDbContext.cs
-- Backend/MeetSpase.Infrastructure/Data/DbSeeder.cs
-- Backend/MeetSpase.Infrastructure/Repositories/UserRepository.cs
-- Backend/MeetSpase.Infrastructure/Services/JwtService.cs
-- Backend/MeetSpase.Infrastructure/DependencyInjection.cs
-- Backend/MeetSpase.API/Authorization/Policies.cs
-- Backend/MeetSpase.API/Controllers/AuthController.cs
+- Backend/MeetSpace.Domain/Enums/UserRole.cs (`UserRoles` static constants)
+- Backend/MeetSpace.Domain/Entities/User.cs (`ApplicationUser : IdentityUser`)
+- Backend/MeetSpace.Application/Interfaces/IJwtService.cs
+- Backend/MeetSpace.Application/Interfaces/IUserRepository.cs (stub, superseded by UserManager)
+- Backend/MeetSpace.Application/Features/Auth/Login/LoginCommand.cs
+- Backend/MeetSpace.Application/Features/Auth/Login/LoginResponse.cs
+- Backend/MeetSpace.Application/Features/Auth/Login/LoginCommandHandler.cs
+- Backend/MeetSpace.Application/Features/Auth/Login/LoginCommandValidator.cs
+- Backend/MeetSpace.Application/DependencyInjection.cs
+- Backend/MeetSpace.Infrastructure/Data/AppDbContext.cs
+- Backend/MeetSpace.Infrastructure/Data/DbSeeder.cs
+- Backend/MeetSpace.Infrastructure/Repositories/UserRepository.cs
+- Backend/MeetSpace.Infrastructure/Services/JwtService.cs
+- Backend/MeetSpace.Infrastructure/DependencyInjection.cs
+- Backend/MeetSpace.API/Authorization/Policies.cs
+- Backend/MeetSpace.API/Controllers/AuthController.cs
 
 **Files Modified**:
-- Backend/MeetSpase.Domain/MeetSpase.Domain.csproj (FrameworkReference for ASP.NET Core Identity)
-- Backend/MeetSpase.Application/MeetSpase.Application.csproj
-- Backend/MeetSpase.Infrastructure/MeetSpase.Infrastructure.csproj
-- Backend/MeetSpase.API/MeetSpase.API.csproj
-- Backend/MeetSpase.API/Program.cs
+- Backend/MeetSpace.Domain/MeetSpace.Domain.csproj (FrameworkReference for ASP.NET Core Identity)
+- Backend/MeetSpace.Application/MeetSpace.Application.csproj
+- Backend/MeetSpace.Infrastructure/MeetSpace.Infrastructure.csproj
+- Backend/MeetSpace.API/MeetSpace.API.csproj
+- Backend/MeetSpace.API/Program.cs
 
 ---
 
@@ -119,24 +206,24 @@ This document preserves a chronological record of all user requests made during 
 - Removed `IJwtService`, `JwtService`, and all custom JWT signing/validation logic
 - Removed Login CQRS feature files (`LoginCommand`, `LoginCommandHandler`, etc.) — superseded by OpenIddict token endpoint
 - `AuthController` rewritten as a standard OAuth2 token endpoint at `POST /connect/token`
-- Password grant (ROPC): `grant_type=password&client_id=meetspase-angular&username={email}&password={pass}`
+- Password grant (ROPC): `grant_type=password&client_id=MeetSpace-angular&username={email}&password={pass}`
 - OpenIddict issues and validates tokens; replaces `Microsoft.AspNetCore.Authentication.JwtBearer` entirely
 - `AppDbContext` registered with `UseOpenIddict()` — OpenIddict stores (applications, tokens, authorizations) auto-migrated via EF Core
-- `DbSeeder` seeds the Angular SPA as a public OpenIddict client (`meetspase-angular`)
+- `DbSeeder` seeds the Angular SPA as a public OpenIddict client (`MeetSpace-angular`)
 - Development: auto-generated signing & encryption certificates via `AddDevelopmentEncryptionCertificate()` / `AddDevelopmentSigningCertificate()`
 - Bumped EF Core packages to `8.0.11` to resolve OpenIddict transitive version requirements
 
 **Files Modified**:
-- Backend/MeetSpase.API/Controllers/AuthController.cs (full rewrite as OpenIddict token endpoint)
-- Backend/MeetSpase.API/Program.cs (replaced JwtBearer with OpenIddict server + validation)
-- Backend/MeetSpase.API/MeetSpase.API.csproj (JwtBearer → OpenIddict.AspNetCore)
-- Backend/MeetSpase.Infrastructure/DependencyInjection.cs (UseOpenIddict on DbContext)
-- Backend/MeetSpase.Infrastructure/Data/DbSeeder.cs (seed OpenIddict application)
-- Backend/MeetSpase.Infrastructure/Services/JwtService.cs (stubbed out)
-- Backend/MeetSpase.Infrastructure/MeetSpase.Infrastructure.csproj (added OpenIddict.EntityFrameworkCore, bumped EF Core)
-- Backend/MeetSpase.Application/Interfaces/IJwtService.cs (stubbed out)
-- Backend/MeetSpase.Application/Features/Auth/Login/*.cs (stubbed out)
-- Backend/MeetSpase.Application/MeetSpase.Application.csproj (removed Identity.Core/BCrypt packages)
+- Backend/MeetSpace.API/Controllers/AuthController.cs (full rewrite as OpenIddict token endpoint)
+- Backend/MeetSpace.API/Program.cs (replaced JwtBearer with OpenIddict server + validation)
+- Backend/MeetSpace.API/MeetSpace.API.csproj (JwtBearer → OpenIddict.AspNetCore)
+- Backend/MeetSpace.Infrastructure/DependencyInjection.cs (UseOpenIddict on DbContext)
+- Backend/MeetSpace.Infrastructure/Data/DbSeeder.cs (seed OpenIddict application)
+- Backend/MeetSpace.Infrastructure/Services/JwtService.cs (stubbed out)
+- Backend/MeetSpace.Infrastructure/MeetSpace.Infrastructure.csproj (added OpenIddict.EntityFrameworkCore, bumped EF Core)
+- Backend/MeetSpace.Application/Interfaces/IJwtService.cs (stubbed out)
+- Backend/MeetSpace.Application/Features/Auth/Login/*.cs (stubbed out)
+- Backend/MeetSpace.Application/MeetSpace.Application.csproj (removed Identity.Core/BCrypt packages)
 
 ### Request 9: Scope Bearer Token to API Origin
 **Time**: February 27, 2026
@@ -153,14 +240,14 @@ This document preserves a chronological record of all user requests made during 
 
 ### Request 10: Replace FrameworkReference with Explicit Identity Package in Domain
 **Time**: February 27, 2026
-**Request**: *(User edit)* `MeetSpase.Domain.csproj` updated to reference `Microsoft.AspNetCore.Identity` as a direct NuGet package instead of the broad `Microsoft.AspNetCore.App` framework reference.
+**Request**: *(User edit)* `MeetSpace.Domain.csproj` updated to reference `Microsoft.AspNetCore.Identity` as a direct NuGet package instead of the broad `Microsoft.AspNetCore.App` framework reference.
 
 **Outcome**:
 - `<FrameworkReference Include="Microsoft.AspNetCore.App" />` replaced with `<PackageReference Include="Microsoft.AspNetCore.Identity" Version="8.0.0" />`
 - Domain project no longer pulls in the entire ASP.NET Core framework; dependency is minimal and explicit
 
 **Files Modified**:
-- Backend/MeetSpase.Domain/MeetSpase.Domain.csproj
+- Backend/MeetSpace.Domain/MeetSpace.Domain.csproj
 
 ---
 
@@ -172,7 +259,7 @@ This document preserves a chronological record of all user requests made during 
 
 **Outcome**:
 - Created 16 task files (001-Task-Login through 016-Task-Cancel-Booking)
-- Extracted all functional requirements from MeetSpase_MVP_SRS.md
+- Extracted all functional requirements from MeetSpace_MVP_SRS.md
 - Task numbering format: `{task_number}-Task-{feature}.md`
 - Location: `./documentation/tasks/`
 
@@ -222,7 +309,7 @@ This document preserves a chronological record of all user requests made during 
 
 ### Request 5: Insert Offices Page Task with Modals
 **Time**: Early Session  
-**Request**: "Add extra task after task 005. This task should implement Offices page, page should display List of the offices. From this page user will be able to add/remove/edit offices, offices rooms from a modal window as well. Take a look into MeetSpase_MVP_SRS.md file for details or ask me"
+**Request**: "Add extra task after task 005. This task should implement Offices page, page should display List of the offices. From this page user will be able to add/remove/edit offices, offices rooms from a modal window as well. Take a look into MeetSpace_MVP_SRS.md file for details or ask me"
 
 **Outcome**:
 - Created Task 006 - Offices Page
@@ -249,10 +336,10 @@ This document preserves a chronological record of all user requests made during 
 Created complete project foundation:
 
 **Backend Structure**:
-- MeetSpase.API (Web API)
-- MeetSpase.Domain (Entities)
-- MeetSpase.Application (CQRS)
-- MeetSpase.Infrastructure (Data Access)
+- MeetSpace.API (Web API)
+- MeetSpace.Domain (Entities)
+- MeetSpace.Application (CQRS)
+- MeetSpace.Infrastructure (Data Access)
 - Project files (.csproj) with all dependencies
 - Program.cs with services configuration
 - appsettings.json with JWT and database config

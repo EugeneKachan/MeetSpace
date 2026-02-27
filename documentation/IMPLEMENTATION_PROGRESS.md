@@ -1,6 +1,6 @@
-# MeetSpase - Implementation Progress Tracker
+# MeetSpace - Implementation Progress Tracker
 
-**Last Updated**: February 26, 2026  
+**Last Updated**: February 27, 2026  
 **Project Status**: In Progress
 
 ---
@@ -9,9 +9,9 @@
 
 | Component | Completed | Total | Percentage |
 |-----------|-----------|-------|-----------|
-| Backend   | 1/18      | 18    | 5.6%      |
-| Frontend  | 1/18      | 18    | 5.6%      |
-| **Total** | **2/36**  | **36** | **5.6%**  |
+| Backend   | 5/18      | 18    | 27.8%     |
+| Frontend  | 5/18      | 18    | 27.8%     |
+| **Total** | **10/36** | **36** | **27.8%** |
 
 ---
 
@@ -21,12 +21,12 @@
 - [x] **Task 000** - Initialize Project (Setup, project structure, configuration)
 
 ### Authentication & Authorization
-- [ ] **Task 001** - Login (Authenticate user, generate JWT, return token)
-- [ ] **Task 002** - Authorization (RBAC policies, endpoint protection)
+- [x] **Task 001** - Login (Authenticate user, generate JWT, return token)
+- [x] **Task 002** - Authorization (RBAC policies, endpoint protection)
 
 ### User Management (Admin Only)
-- [ ] **Task 003** - Create User (Add new user with email, password, role)
-- [ ] **Task 004** - Update User (Modify user details)
+- [x] **Task 003** - Create User (Add new user with email, password, role)
+- [x] **Task 004** - Update User (Modify user details)
 - [ ] **Task 005** - Deactivate User (Soft delete via IsActive flag)
 
 ### Office Management (Admin Only)
@@ -61,12 +61,12 @@
 - [x] **Task 000** - Initialize Project (Angular scaffold, routing, Material setup)
 
 ### Authentication & Authorization
-- [ ] **Task 001** - Login Page (Email/password form, authentication UI)
-- [ ] **Task 002** - Authorization (Route guards, role-based rendering)
+- [x] **Task 001** - Login Page (Email/password form, authentication UI)
+- [x] **Task 002** - Authorization (Route guards, role-based rendering)
 
 ### User Management (Admin Only)
-- [ ] **Task 003** - Create User Page (User creation form in modal)
-- [ ] **Task 004** - Update User Page (User edit form in modal)
+- [x] **Task 003** - Create User Page (User creation form in modal)
+- [x] **Task 004** - Update User Page (User edit form in modal)
 - [ ] **Task 005** - Deactivate User Page (User list with deactivate action)
 
 ### Office Management (Admin Only)
@@ -92,6 +92,24 @@
 - HttpClient with AuthInterceptor for JWT handling
 - RxJS Observables for state management
 - Feature-based module organization
+
+### UI Tests
+- ✅ Unit tests added for key frontend pieces (Karma + Jasmine)
+   - Spec files added:
+      - `src/app/core/services/auth.service.spec.ts`
+      - `src/app/core/services/users.service.spec.ts`
+      - `src/app/core/interceptors/auth.interceptor.spec.ts`
+      - `src/app/core/guards/auth.guard.spec.ts`
+      - `src/app/features/auth/login/login.component.spec.ts`
+      - `src/app/features/users/user-management/user-management.component.spec.ts`
+      - `src/app/features/users/create-user-dialog/create-user-dialog.component.spec.ts`
+      - `src/app/features/users/edit-user-dialog/edit-user-dialog.component.spec.ts`
+   - Test run: `ng test --watch=false --browsers=ChromeHeadless` → **92/92 tests passing** (run executed on Feb 27, 2026)
+   - To run locally (headless):
+      ```powershell
+      cd UI
+      ng test --watch=false --browsers=ChromeHeadless
+      ```
 
 ---
 
@@ -204,7 +222,7 @@ For each task, ensure:
 
 | Milestone | Target Tasks | Status |
 |-----------|-------------|--------|
-| **MVP 1.0** | Auth + User Management | 🔴 Not Started |
+| **MVP 1.0** | Auth + User Management | � In Progress |
 | **MVP 1.1** | Office & Room Management | 🔴 Not Started |
 | **MVP 1.2** | Booking System | 🔴 Not Started |
 | **MVP 1.3** | Polish & Optimization | 🔴 Not Started |

@@ -2,7 +2,7 @@
   <mat-card class="login-card">
     <mat-card-header>
       <mat-card-title>
-        <span class="app-logo">MeetSpase</span>
+        <span class="app-logo">MeetSpace</span>
       </mat-card-title>
       <mat-card-subtitle>Sign in to your account</mat-card-subtitle>
     </mat-card-header>
@@ -50,8 +50,8 @@
 
         <button mat-raised-button color="primary" type="submit"
                 class="full-width submit-btn"
-                [disabled]="loading || form.invalid">
-          @if (loading) {
+                [disabled]="isLoading || form.invalid">
+          @if (isLoading) {
             <mat-spinner diameter="20" class="spinner"></mat-spinner>
           } @else {
             Sign In

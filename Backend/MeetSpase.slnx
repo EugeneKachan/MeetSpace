@@ -1,6 +1,0 @@
-<Solution>
-  <Project Path="MeetSpase.API/MeetSpase.API.csproj" />
-  <Project Path="MeetSpase.Application/MeetSpase.Application.csproj" />
-  <Project Path="MeetSpase.Domain/MeetSpase.Domain.csproj" />
-  <Project Path="MeetSpase.Infrastructure/MeetSpase.Infrastructure.csproj" />
-</Solution>

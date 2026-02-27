@@ -18,6 +18,12 @@ const routes: Routes = [
     canActivate: [authGuard]
   },
   {
+    path: 'users',
+    loadChildren: () => import('./features/users/users.module').then(m => m.UsersModule),
+    canActivate: [authGuard],
+    data: { roles: ['Admin'] }
+  },
+  {
     path: 'unauthorized',
     loadComponent: () =>
       import('./shared/components/unauthorized/unauthorized.component').then(

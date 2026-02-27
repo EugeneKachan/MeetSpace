@@ -8,9 +8,9 @@ import { User } from '../../models/auth.model';
   styleUrls: ['./dashboard.component.scss']
 })
 export class DashboardComponent implements OnInit {
-  user: User | null = null;
+  public user: User | null = null;
 
-  readonly roleColor: Record<string, string> = {
+  private readonly roleColor: Record<string, string> = {
     Admin: 'warn',
     OfficeManager: 'accent',
     Employee: 'primary'

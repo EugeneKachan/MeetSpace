@@ -12,11 +12,11 @@ const REFRESH_KEY = 'refresh_token';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  private readonly tokenEndpoint = `${environment.apiUrl}/connect/token`;
-  private readonly jwtHelper = new JwtHelperService();
-  private currentUserSubject = new BehaviorSubject<User | null>(this.parseStoredToken());
+  private readonly tokenEndpoint: string = `${environment.apiUrl}/connect/token`;
+  private readonly jwtHelper: JwtHelperService = new JwtHelperService();
+  private readonly currentUserSubject: BehaviorSubject<User | null> = new BehaviorSubject<User | null>(this.parseStoredToken());
 
-  public currentUser$: Observable<User | null> = this.currentUserSubject.asObservable();
+  public readonly currentUser$: Observable<User | null> = this.currentUserSubject.asObservable();
 
   constructor(private http: HttpClient, private router: Router) {}
 
@@ -24,7 +24,7 @@ export class AuthService {
   login(email: string, password: string): Observable<TokenResponse> {
     const body = new URLSearchParams({
       grant_type: 'password',
-      client_id: 'meetspase-angular',
+      client_id: 'MeetSpace-angular',
       username: email,
       password: password,
       scope: 'openid profile roles api'

@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="MeetSpace.API/MeetSpace.API.csproj" />
+  <Project Path="MeetSpace.Application/MeetSpace.Application.csproj" />
+  <Project Path="MeetSpace.Domain/MeetSpace.Domain.csproj" />
+  <Project Path="MeetSpace.Infrastructure/MeetSpace.Infrastructure.csproj" />
+</Solution>

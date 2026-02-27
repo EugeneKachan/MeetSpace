@@ -4,7 +4,7 @@
 
 **Description:**
 
-- Create the initial solution structure for MeetSpase.
+- Create the initial solution structure for MeetSpace.
 - Backend:
   - ASP.NET Core Web API project.
   - Configure Entity Framework Core and SQL Server.

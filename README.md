@@ -5,26 +5,26 @@
 ```
 MeetSpace/
 ├── Backend/
-│   ├── MeetSpase.API/           # ASP.NET Core Web API entry point
+│   ├── MeetSpace.API/           # ASP.NET Core Web API entry point
 │   │   ├── Controllers/         # API endpoints
 │   │   ├── Middleware/          # Custom middleware
 │   │   ├── Program.cs           # Application bootstrap
 │   │   ├── appsettings.json     # Configuration
-│   │   └── MeetSpase.API.csproj
-│   ├── MeetSpase.Domain/        # Domain entities and interfaces
+│   │   └── MeetSpace.API.csproj
+│   ├── MeetSpace.Domain/        # Domain entities and interfaces
 │   │   ├── Entities/            # Domain models
 │   │   ├── Interfaces/          # Repository/service contracts
-│   │   └── MeetSpase.Domain.csproj
-│   ├── MeetSpase.Application/   # CQRS commands and queries
+│   │   └── MeetSpace.Domain.csproj
+│   ├── MeetSpace.Application/   # CQRS commands and queries
 │   │   ├── Commands/            # CQRS commands
 │   │   ├── Queries/             # CQRS queries
 │   │   ├── DTOs/                # Data transfer objects
 │   │   ├── Validators/          # FluentValidation validators
-│   │   └── MeetSpase.Application.csproj
-│   ├── MeetSpase.Infrastructure/# Data access and repositories
+│   │   └── MeetSpace.Application.csproj
+│   ├── MeetSpace.Infrastructure/# Data access and repositories
 │   │   ├── Data/                # DbContext and migrations
 │   │   ├── Repositories/        # Repository implementations
-│   │   └── MeetSpase.Infrastructure.csproj
+│   │   └── MeetSpace.Infrastructure.csproj
 │   └── README.md
 ├── UI/
 │   ├── src/
@@ -43,7 +43,7 @@ MeetSpace/
 │   ├── tsconfig.json
 │   └── README.md
 ├── documentation/
-│   ├── MeetSpase_MVP_SRS.md     # Project requirements
+│   ├── MeetSpace_MVP_SRS.md     # Project requirements
 │   ├── tasks/                   # Task breakdown (000-017)
 │   └── README.md
 └── prompts/
@@ -103,7 +103,7 @@ See [UI README](./UI/README.md)
 ## Development Workflow
 
 1. Read the required task from `documentation/tasks/`
-2. Reference the MVP SRS in `documentation/MeetSpase_MVP_SRS.md`
+2. Reference the MVP SRS in `documentation/MeetSpace_MVP_SRS.md`
 3. Use the appropriate expert prompt:
    - Backend: `prompts/dotnet-backend-expert.md`
    - Frontend: `prompts/angular-frontend-expert.md`

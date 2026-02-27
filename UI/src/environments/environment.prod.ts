@@ -1,4 +1,4 @@
 export const environment = {
   production: true,
-  apiUrl: 'https://api.meetspase.com'
+  apiUrl: 'https://api.MeetSpace.com'
 };

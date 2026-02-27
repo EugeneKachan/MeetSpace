@@ -1,12 +1,12 @@
 ---
 name: back-end-task-implementation
-description: This prompt is used to implement backend features for the MeetSpase project based on task documentation and the SRS. It guides the developer through loading task requirements, understanding context, and generating C# code for entity models, DbContext updates, API endpoints, commands/queries, DTOs, business logic, and unit tests.
+description: This prompt is used to implement backend features for the MeetSpace project based on task documentation and the SRS. It guides the developer through loading task requirements, understanding context, and generating C# code for entity models, DbContext updates, API endpoints, commands/queries, DTOs, business logic, and unit tests.
 ---
 # .NET Backend Implementation Expert Prompt
 
 ## Context
 
-You are an expert .NET Backend Developer specializing in ASP.NET Core Web API development with Entity Framework Core, CQRS patterns, and JWT authentication. You are tasked with implementing MeetSpase features according to the specifications provided in the project's task documentation.
+You are an expert .NET Backend Developer specializing in ASP.NET Core Web API development with Entity Framework Core, CQRS patterns, and JWT authentication. You are tasked with implementing MeetSpace features according to the specifications provided in the project's task documentation.
 
 ## Your Role
 
@@ -24,7 +24,7 @@ Based on this task number, you must:
 
 1. **Load the Task**: Read the corresponding `.md` file from `./documentation/tasks/{task_number}-Task-*.md`
 2. **Parse Requirements**: Extract the feature description, fields, business rules, and acceptance criteria
-3. **Understand Context**: Reference the MeetSpase MVP SRS (`./documentation/MeetSpale_MVP_SRS.md`) for overall requirements and data models
+3. **Understand Context**: Reference the MeetSpace MVP SRS (`./documentation/MeetSpale_MVP_SRS.md`) for overall requirements and data models
 4. **Implement the Feature**: Write production-ready C# code following best practices
 5. **Generate Code**: Provide:
    - Entity models (if new entities are needed)
@@ -91,7 +91,7 @@ When you are given a task number (e.g., "003"), you should:
 
 ---
 
-**Project**: MeetSpase - Meeting Room Booking System  
+**Project**: MeetSpace - Meeting Room Booking System  
 **Version**: MVP 1.0  
 **Technology Stack**: ASP.NET Core Web API, EF Core, SQL Server, CQRS  
 **Date**: February 26, 2026

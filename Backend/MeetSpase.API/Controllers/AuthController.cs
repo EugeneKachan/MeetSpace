@@ -45,14 +45,23 @@ public class AuthController : ControllerBase
                         [OpenIddictServerAspNetCoreConstants.Properties.ErrorDescription] = "Only the password grant type is supported."
                     }));
 
+        if (string.IsNullOrEmpty(request.ClientId))
+            return InvalidRequest("The client_id parameter is required.");
+
+        if (string.IsNullOrEmpty(request.Username))
+            return InvalidRequest("The username parameter is required.");
+
+        if (string.IsNullOrEmpty(request.Password))
+            return InvalidRequest("The password parameter is required.");
+
         // Resolve user by email or username
-        var user = await _userManager.FindByEmailAsync(request.Username!)
-                   ?? await _userManager.FindByNameAsync(request.Username!);
+        var user = await _userManager.FindByEmailAsync(request.Username)
+                   ?? await _userManager.FindByNameAsync(request.Username);
 
         if (user is null || !user.IsActive)
             return InvalidGrant("The email/password combination is invalid.");
 
-        if (!await _userManager.CheckPasswordAsync(user, request.Password!))
+        if (!await _userManager.CheckPasswordAsync(user, request.Password))
             return InvalidGrant("The email/password combination is invalid.");
 
         // Build claims identity
@@ -88,6 +97,16 @@ public class AuthController : ControllerBase
 
         return SignIn(principal, OpenIddictServerAspNetCoreDefaults.AuthenticationScheme);
     }
+
+    private IActionResult InvalidRequest(string description) =>
+        Forbid(
+            authenticationSchemes: OpenIddictServerAspNetCoreDefaults.AuthenticationScheme,
+            properties: new Microsoft.AspNetCore.Authentication.AuthenticationProperties(
+                new Dictionary<string, string?>
+                {
+                    [OpenIddictServerAspNetCoreConstants.Properties.Error] = Errors.InvalidRequest,
+                    [OpenIddictServerAspNetCoreConstants.Properties.ErrorDescription] = description
+                }));
 
     private IActionResult InvalidGrant(string description) =>
         Forbid(

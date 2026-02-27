@@ -114,13 +114,13 @@ builder.Services.AddOpenIddict()
 // RBAC authorization policies (FR-2)
 builder.Services.AddAuthorization(options =>
 {
-    options.AddPolicy("EmployeeOrAbove", policy =>
+    options.AddPolicy(Policies.EmployeeOrAbove, policy =>
         policy.RequireRole("Employee", "OfficeManager", "Admin"));
 
-    options.AddPolicy("ManagerOrAbove", policy =>
+    options.AddPolicy(Policies.ManagerOrAbove, policy =>
         policy.RequireRole("OfficeManager", "Admin"));
 
-    options.AddPolicy("AdminOnly", policy =>
+    options.AddPolicy(Policies.AdminOnly, policy =>
         policy.RequireRole("Admin"));
 });
 

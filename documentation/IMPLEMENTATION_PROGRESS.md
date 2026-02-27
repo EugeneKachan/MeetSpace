@@ -53,6 +53,17 @@
 - SQL Server LocalDB for development
 - JWT tokens for stateless authentication
 
+### Backend Tests
+- ✅ Unit tests added for `UsersController` (xUnit + Moq)
+   - Project: `Backend/MeetSpace.API.Tests`
+   - Tests added: `UsersControllerTests` covering `GetAll`, `Create`, `Update` (id mismatch and success)
+   - Test run: `dotnet test Backend/MeetSpace.API.Tests/MeetSpace.API.Tests.csproj` → **4 passed, 0 failed** (run executed on Feb 27, 2026)
+   - To run locally:
+      ```powershell
+      cd Backend
+      dotnet test MeetSpace.API.Tests/MeetSpace.API.Tests.csproj
+      ```
+
 ---
 
 ## 🎨 Frontend Implementation Status

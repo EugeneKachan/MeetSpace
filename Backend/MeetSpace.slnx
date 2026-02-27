@@ -1,4 +1,8 @@
 <Solution>
+  <Folder Name="/Test/">
+    <Project Path="Test/MeetSpace.API.Tests/MeetSpace.API.Tests.csproj" />
+    <Project Path="Test/MeetSpace.Application.Tests/MeetSpace.Application.Tests.csproj" />
+  </Folder>
   <Project Path="MeetSpace.API/MeetSpace.API.csproj" />
   <Project Path="MeetSpace.Application/MeetSpace.Application.csproj" />
   <Project Path="MeetSpace.Domain/MeetSpace.Domain.csproj" />

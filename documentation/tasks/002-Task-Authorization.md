@@ -6,7 +6,7 @@
 - Use Microsoft library ASP.NET Core Identity + OAuth2
 - Role-based access control (RBAC).
 - Default roles: Employee, OfficeManager, Admin
-- Default user: admin
+- Default admin email: admin@meetspase.com (change password after first login)
 - API endpoints protected via policies.
 - Invalid or expired token results in authentication failure.
 

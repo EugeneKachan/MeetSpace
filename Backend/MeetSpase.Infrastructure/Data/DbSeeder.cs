@@ -13,7 +13,8 @@ public static class DbSeeder
         UserManager<ApplicationUser> userManager,
         RoleManager<IdentityRole> roleManager,
         IOpenIddictApplicationManager applicationManager,
-        ILogger logger)
+        ILogger logger,
+        string? adminPassword = null)
     {
         // --- Seed Identity roles ---
         string[] roles = [UserRoles.Employee, UserRoles.OfficeManager, UserRoles.Admin];
@@ -28,7 +29,11 @@ public static class DbSeeder
 
         // --- Seed default admin user ---
         const string adminEmail = "admin@meetspase.com";
-        if (await userManager.FindByEmailAsync(adminEmail) is null)
+        if (string.IsNullOrEmpty(adminPassword))
+        {
+            logger.LogInformation("Admin seed skipped: AdminSeed:Password is not configured.");
+        }
+        else if (await userManager.FindByEmailAsync(adminEmail) is null)
         {
             var admin = new ApplicationUser
             {
@@ -41,7 +46,7 @@ public static class DbSeeder
                 EmailConfirmed = true
             };
 
-            var result = await userManager.CreateAsync(admin, "Admin@123");
+            var result = await userManager.CreateAsync(admin, adminPassword);
             if (result.Succeeded)
             {
                 await userManager.AddToRoleAsync(admin, UserRoles.Admin);

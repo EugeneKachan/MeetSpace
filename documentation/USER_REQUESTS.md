@@ -138,6 +138,30 @@ This document preserves a chronological record of all user requests made during 
 - Backend/MeetSpase.Application/Features/Auth/Login/*.cs (stubbed out)
 - Backend/MeetSpase.Application/MeetSpase.Application.csproj (removed Identity.Core/BCrypt packages)
 
+### Request 9: Scope Bearer Token to API Origin
+**Time**: February 27, 2026
+**Request**: *(User edit)* Auth interceptor updated to only attach `Authorization: Bearer` header when the request targets the application's own API (`environment.apiUrl`).
+
+**Outcome**:
+- `AuthInterceptor.intercept()` now checks `request.url.startsWith(environment.apiUrl)` before injecting the token
+- Prevents accidental credential leakage to third-party URLs (Google Fonts, CDNs, etc.)
+
+**Files Modified**:
+- UI/src/app/core/interceptors/auth.interceptor.ts
+
+---
+
+### Request 10: Replace FrameworkReference with Explicit Identity Package in Domain
+**Time**: February 27, 2026
+**Request**: *(User edit)* `MeetSpase.Domain.csproj` updated to reference `Microsoft.AspNetCore.Identity` as a direct NuGet package instead of the broad `Microsoft.AspNetCore.App` framework reference.
+
+**Outcome**:
+- `<FrameworkReference Include="Microsoft.AspNetCore.App" />` replaced with `<PackageReference Include="Microsoft.AspNetCore.Identity" Version="8.0.0" />`
+- Domain project no longer pulls in the entire ASP.NET Core framework; dependency is minimal and explicit
+
+**Files Modified**:
+- Backend/MeetSpase.Domain/MeetSpase.Domain.csproj
+
 ---
 
 ## Session: February 26, 2026

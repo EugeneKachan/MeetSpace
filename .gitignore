@@ -1,0 +1,42 @@
+# Build artifacts
+bin/
+obj/
+dist/
+out-tsc/
+
+# Dependencies
+node_modules/
+package-lock.json
+*.lock
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Environment files
+appsettings.Production.json
+.env
+.env.local
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# Angular
+coverage/
+.angular/
+
+# .NET
+.vs/
+.vscode/
+*.user
+*.suo
+*.sln.iml
+
+# OS
+Thumbs.db

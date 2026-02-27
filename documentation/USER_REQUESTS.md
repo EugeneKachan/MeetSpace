@@ -1,0 +1,257 @@
+# MeetSpase - User Requests History
+
+**Maintained**: February 26, 2026  
+**Project**: MeetSpase - Meeting Room Booking System
+
+This document preserves a chronological record of all user requests made during the development process.
+
+---
+
+## Session: February 26, 2026
+
+### Request 1: Split MVP SRS into Tasks
+**Time**: Early Session  
+**Request**: "I have mvp srs file of my project. Split it into a tasks, each task should have separate .md file with format {task_number}-Task-{feature}. Put this file to the ./documentation/tasks folder. If you need some additional info, let me know"
+
+**Outcome**:
+- Created 16 task files (001-Task-Login through 016-Task-Cancel-Booking)
+- Extracted all functional requirements from MeetSpase_MVP_SRS.md
+- Task numbering format: `{task_number}-Task-{feature}.md`
+- Location: `./documentation/tasks/`
+
+**Files Created**: 16 markdown files
+
+---
+
+### Request 2: Reorder Tasks - User Management First
+**Time**: Early Session  
+**Request**: "Dont you think that user tasks should be the first?"  
+**Clarification Request & Answer**: User specified that authentication, user management, and roles should be implemented first before other features.
+
+**Outcome**:
+- Renumbered tasks to prioritize:
+  - Tasks 001-002: Authentication (Login, Authorization)
+  - Tasks 003-005: User Management (Create, Update, Deactivate)
+  - Tasks 006-008: Office Management
+  - Tasks 009-011: Room Management
+  - Tasks 012-017: Booking Management
+
+**Files Modified**: All 16 task files (renamed and headings updated)
+
+---
+
+### Request 3: Add Task 000 - Project Initialization
+**Time**: Early Session  
+**Request**: "Add task with number 000. This task should initialise UI project with provided in the documentation tech data. UI should be placed into UI folder. Same for backend"
+
+**Outcome**:
+- Created Task 000 - Initialize Project
+- Backend structure with ASP.NET Core API, Domain, Application, Infrastructure layers
+- Frontend structure with Angular and Angular Material
+- Configuration files for both backend and frontend
+
+**Files Created**: 001-Task-Initialize-Project.md
+
+---
+
+### Request 4: Add UI Feature Page Tasks
+**Time**: Early Session  
+**Request**: "Add also tasks for each feature which will implement a initial feature page with tables"
+
+**Intended Outcome**: Create tasks for UI pages with table components
+- (Note: User later undid these changes, preferring a different approach with Task 006 being the Offices page with modal management)
+
+---
+
+### Request 5: Insert Offices Page Task with Modals
+**Time**: Early Session  
+**Request**: "Add extra task after task 005. This task should implement Offices page, page should display List of the offices. From this page user will be able to add/remove/edit offices, offices rooms from a modal window as well. Take a look into MeetSpase_MVP_SRS.md file for details or ask me"
+
+**Outcome**:
+- Created Task 006 - Offices Page
+- Task includes: office listing table, add/edit/remove via modals, room management from office modal
+- Shifted subsequent tasks (006-016 became 007-017)
+- Updated heading numbers in affected files
+
+**Files Created/Modified**: 
+- Created: 006-Task-Offices-Page.md
+- Modified: All backend/booking tasks (007-017)
+
+---
+
+### Request 6: Implement Task 000 - Project Structure
+**Time**: Mid Session  
+**Request**: "Implement task 000. If you need get some details - ask me"
+
+**Clarifications Asked**:
+- Implementation approach: User selected "Generate folder structure & configuration files"
+- .NET version: User selected ".NET 8"
+- CQRS library: User selected "MediatR"
+
+**Outcome**:
+Created complete project foundation:
+
+**Backend Structure**:
+- MeetSpase.API (Web API)
+- MeetSpase.Domain (Entities)
+- MeetSpase.Application (CQRS)
+- MeetSpase.Infrastructure (Data Access)
+- Project files (.csproj) with all dependencies
+- Program.cs with services configuration
+- appsettings.json with JWT and database config
+
+**Frontend Structure**:
+- Angular 17 project structure
+- Core module (services, guards, interceptors)
+- Shared components folder
+- Features module placeholder
+- Models and services
+- Material theming setup
+- Basic routing and layout components
+
+**Configuration Files**:
+- package.json (Angular dependencies)
+- angular.json
+- tsconfig.json files
+- Backend and Frontend README.md files
+- Root README.md with architecture overview
+- .gitignore with appropriate exclusions
+
+**Files Created**: 30+ configuration and source files
+
+---
+
+### Request 7: Generate Backend Expert Prompt
+**Time**: Mid Session  
+**Request**: "Generate .md prompt and save to ./prompts folder. In this prompt you should be a .net expert which will implement me a provided task. As input you will take a task number which is presented in ./documents/tasks folder"
+
+**Outcome**:
+- Created `./prompts/dotnet-backend-expert.md`
+- Comprehensive .NET/ASP.NET Core expert prompt
+- Includes task loading mechanism, architecture guidelines, CQRS patterns
+- Output structure templates
+- Constraints and guidelines for .NET 8, EF Core, SQL Server, JWT
+
+**Files Created**: dotnet-backend-expert.md
+
+---
+
+### Request 8: Generate Frontend Expert Prompt
+**Time**: Mid Session  
+**Request**: "generate the same but for UI where you will be front end expert"
+
+**Outcome**:
+- Created `./prompts/angular-frontend-expert.md`
+- Comprehensive Angular/TypeScript expert prompt
+- Includes task loading mechanism, Angular 15+ guidelines
+- Component-based architecture patterns
+- Reactive forms and RxJS Observables
+- Material Design compliance
+- Output structure templates
+
+**Files Created**: angular-frontend-expert.md
+
+---
+
+### Request 9: Add Implementation Progress Tracker
+**Time**: Mid-Late Session  
+**Request**: "Add to the documentation .md file where I can track our implementation. What is done and what not, It should be possible to check UI and Backend parts"
+
+**Outcome**:
+- Created `./documentation/IMPLEMENTATION_PROGRESS.md`
+- Progress tables for Backend and Frontend (18 tasks each)
+- Overall completion percentage tracking
+- Task dependencies visualization
+- Priority-ordered upcoming tasks
+- Completed features summary
+- Release milestones for MVP phases
+- Implementation checklist template
+- Notes and blockers tracking
+
+**Files Created**: IMPLEMENTATION_PROGRESS.md
+
+---
+
+### Request 10: Update Prompts History Instructions
+**Time**: Late Session  
+**Request**: "Change prompts.history.instructions.md to make you add all prompts from our conversation to the ./prompts/prompts.history.md file"
+
+**Outcome**:
+- Updated `./.github/instructions/prompts.history.instructions.md` with comprehensive directives
+- Created `./prompts/prompts.history.md` with complete history of:
+  - Angular Frontend Expert Prompt (v1.0)
+  - .NET Backend Expert Prompt (v1.0)
+  - Implementation Progress Tracker
+  - System Instructions for Prompts History
+  - Project Architecture Documentation
+  - Backend Setup Guidelines
+  - Frontend Setup Guidelines
+  - Task Dependencies Chart
+  - Task 000 Completion Status
+
+**Files Created/Modified**:
+- Modified: prompts.history.instructions.md
+- Created: prompts.history.md
+
+---
+
+### Request 11: Save User Requests History
+**Time**: Current  
+**Request**: "It's important to save my requests to you"
+
+**Current Action**:
+- Creating this document to preserve all user requests in chronological order
+- Format: Request description, clarifications, outcomes, files created/modified
+
+**Files Being Created**: USER_REQUESTS.md (this file)
+
+---
+
+## Summary Statistics
+
+| Metric | Count |
+|--------|-------|
+| Total Requests | 11 |
+| Tasks Created | 18 |
+| Configuration Files | 30+ |
+| Prompt Templates | 2 |
+| Documentation Files | 5 |
+| Total Files Generated | 55+ |
+
+---
+
+## Key Decisions Made
+
+1. **Task Ordering**: User prioritized authentication → user management → other features
+2. **Architecture**: User selected .NET 8 with MediatR for CQRS
+3. **Project Structure**: Clean architecture with 4-layer backend, feature-based frontend
+4. **Technology Stack**:
+   - Backend: ASP.NET Core 8, EF Core, SQL Server, MediatR, FluentValidation
+   - Frontend: Angular 17, Material, RxJS, TypeScript
+
+---
+
+## Implementation Status Summary
+
+- ✅ Task 000: Project Initialization (Complete)
+- ⏳ Tasks 001-017: Pending Implementation
+- ✅ Documentation: 90% Complete
+- ✅ Prompts: 100% Complete
+- ✅ Progress Tracking: Active
+
+---
+
+## Next Steps (User Direction)
+
+Based on requests and current status:
+1. Implement Task 001 (Login Backend) using dotnet-backend-expert.md
+2. Implement Task 001 (Login Page) using angular-frontend-expert.md
+3. Continue with priority sequence per IMPLEMENTATION_PROGRESS.md
+4. Update IMPLEMENTATION_PROGRESS.md as each task completes
+5. Update prompts.history.md when new prompts are created
+
+---
+
+**Document Created**: February 26, 2026  
+**Status**: Active - Will be updated as new requests are received  
+**Maintenance**: Update this file whenever new user requests are made

@@ -7,6 +7,23 @@ This document preserves a chronological record of all user requests made during 
 
 ---
 
+## Session: February 27, 2026 (Sub-PR)
+
+### Request 1: Add null validation in AuthController (sub-PR)
+**Time**: February 27, 2026
+**Request**: "@copilot open a new pull request to apply changes based on feedback: `request.Username!` and `request.Password!` are null-forgiven. If either field is missing in the token request, this will throw before a proper OAuth error is returned. Validate `request.Username`/`request.Password` (and ideally `request.ClientId`) and return an OpenIddict error response (e.g., invalid_request/invalid_grant) instead of relying on null-forgiveness."
+
+**Outcome**:
+- Removed null-forgiveness operators (`!`) from `request.Username` and `request.Password`
+- Added explicit `string.IsNullOrEmpty` checks for `request.ClientId`, `request.Username`, and `request.Password` before they are used
+- Added `InvalidRequest` private helper method returning OpenIddict `invalid_request` error (mirroring existing `InvalidGrant` helper)
+- All missing-parameter cases now return a proper RFC 6749-compliant `invalid_request` OAuth error response instead of throwing a `NullReferenceException`
+
+**Files Modified**:
+- Backend/MeetSpase.API/Controllers/AuthController.cs
+
+---
+
 ## Session: February 27, 2026
 
 ### Request 1: Implement Tasks 001 + 002 using ASP.NET Core Identity

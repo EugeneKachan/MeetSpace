@@ -1,2 +1,19 @@
-// Placeholder for Material theme imports and customizations
-// This will be expanded when Material theming is configured
+@use '@angular/material' as mat;
+
+@include mat.core();
+
+$primary: mat.define-palette(mat.$indigo-palette, 700);
+$accent: mat.define-palette(mat.$cyan-palette, 600);
+$warn: mat.define-palette(mat.$red-palette);
+
+$theme: mat.define-light-theme((
+  color: (
+    primary: $primary,
+    accent: $accent,
+    warn: $warn
+  ),
+  typography: mat.define-typography-config(),
+  density: 0
+));
+
+@include mat.all-component-themes($theme);

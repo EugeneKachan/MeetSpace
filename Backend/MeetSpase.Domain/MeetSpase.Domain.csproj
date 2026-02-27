@@ -8,4 +8,8 @@
     <AssemblyName>MeetSpase.Domain</AssemblyName>
   </PropertyGroup>
 
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
 </Project>

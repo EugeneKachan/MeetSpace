@@ -1,10 +1,23 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+import { Observable } from 'rxjs';
+import { AuthService } from './core/services/auth.service';
+import { User } from './models/auth.model';
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss']
 })
-export class AppComponent {
-  title = 'MeetSpase';
+export class AppComponent implements OnInit {
+  currentUser$!: Observable<User | null>;
+
+  constructor(private authService: AuthService) {}
+
+  ngOnInit(): void {
+    this.currentUser$ = this.authService.currentUser$;
+  }
+
+  logout(): void {
+    this.authService.logout();
+  }
 }

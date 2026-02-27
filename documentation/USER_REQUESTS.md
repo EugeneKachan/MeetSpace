@@ -7,6 +7,80 @@ This document preserves a chronological record of all user requests made during 
 
 ---
 
+## Session: February 27, 2026
+
+### Request 1: Implement Tasks 001 + 002 using ASP.NET Core Identity
+**Time**: February 27, 2026
+**Request**: "002" (via back-end-task-implementation.prompt.md) + "Make a corrections. I don't want to implement my own logic, just use library Microsoft.AspNetCore.Identity, use already existing models in this library and logic for authentication and authorization"
+
+**Outcome**:
+- Replaced custom `User` entity and BCrypt password logic with `ApplicationUser : IdentityUser`
+- Replaced custom `UserRole` enum with `UserRoles` static string constants for Identity roles
+- `UserManager<ApplicationUser>` used for user lookup and password verification (replaces custom repository + BCrypt)
+- `RoleManager<IdentityRole>` used for role management
+- `AppDbContext` extends `IdentityDbContext<ApplicationUser>` — Identity tables managed automatically
+- `DbSeeder` seeds three roles (Employee, OfficeManager, Admin) and a default admin via `UserManager`
+- `JwtService` is async; retrieves roles from `UserManager.GetRolesAsync` for JWT claims
+- `AddIdentityCore<ApplicationUser>` configured with password policy; no cookie auth conflicts with JWT
+- Default admin: `admin@meetspase.com` / `Admin@123`
+
+**Files Created**:
+- Backend/MeetSpase.Domain/Enums/UserRole.cs (`UserRoles` static constants)
+- Backend/MeetSpase.Domain/Entities/User.cs (`ApplicationUser : IdentityUser`)
+- Backend/MeetSpase.Application/Interfaces/IJwtService.cs
+- Backend/MeetSpase.Application/Interfaces/IUserRepository.cs (stub, superseded by UserManager)
+- Backend/MeetSpase.Application/Features/Auth/Login/LoginCommand.cs
+- Backend/MeetSpase.Application/Features/Auth/Login/LoginResponse.cs
+- Backend/MeetSpase.Application/Features/Auth/Login/LoginCommandHandler.cs
+- Backend/MeetSpase.Application/Features/Auth/Login/LoginCommandValidator.cs
+- Backend/MeetSpase.Application/DependencyInjection.cs
+- Backend/MeetSpase.Infrastructure/Data/AppDbContext.cs
+- Backend/MeetSpase.Infrastructure/Data/DbSeeder.cs
+- Backend/MeetSpase.Infrastructure/Repositories/UserRepository.cs
+- Backend/MeetSpase.Infrastructure/Services/JwtService.cs
+- Backend/MeetSpase.Infrastructure/DependencyInjection.cs
+- Backend/MeetSpase.API/Authorization/Policies.cs
+- Backend/MeetSpase.API/Controllers/AuthController.cs
+
+**Files Modified**:
+- Backend/MeetSpase.Domain/MeetSpase.Domain.csproj (FrameworkReference for ASP.NET Core Identity)
+- Backend/MeetSpase.Application/MeetSpase.Application.csproj
+- Backend/MeetSpase.Infrastructure/MeetSpase.Infrastructure.csproj
+- Backend/MeetSpase.API/MeetSpase.API.csproj
+- Backend/MeetSpase.API/Program.cs
+
+---
+
+### Request 2: Replace custom JWT with OpenIddict (OIDC/OAuth2)
+**Time**: February 27, 2026
+**Request**: "Lets use OIDC/OAuth2" / "why do you use custom token generation, I don't want to use IJwtService, can I use default api from the library box?"
+
+**Outcome**:
+- Integrated **OpenIddict 5.5.0** as the OAuth2/OIDC server and token validator
+- Removed `IJwtService`, `JwtService`, and all custom JWT signing/validation logic
+- Removed Login CQRS feature files (`LoginCommand`, `LoginCommandHandler`, etc.) — superseded by OpenIddict token endpoint
+- `AuthController` rewritten as a standard OAuth2 token endpoint at `POST /connect/token`
+- Password grant (ROPC): `grant_type=password&client_id=meetspase-angular&username={email}&password={pass}`
+- OpenIddict issues and validates tokens; replaces `Microsoft.AspNetCore.Authentication.JwtBearer` entirely
+- `AppDbContext` registered with `UseOpenIddict()` — OpenIddict stores (applications, tokens, authorizations) auto-migrated via EF Core
+- `DbSeeder` seeds the Angular SPA as a public OpenIddict client (`meetspase-angular`)
+- Development: auto-generated signing & encryption certificates via `AddDevelopmentEncryptionCertificate()` / `AddDevelopmentSigningCertificate()`
+- Bumped EF Core packages to `8.0.11` to resolve OpenIddict transitive version requirements
+
+**Files Modified**:
+- Backend/MeetSpase.API/Controllers/AuthController.cs (full rewrite as OpenIddict token endpoint)
+- Backend/MeetSpase.API/Program.cs (replaced JwtBearer with OpenIddict server + validation)
+- Backend/MeetSpase.API/MeetSpase.API.csproj (JwtBearer → OpenIddict.AspNetCore)
+- Backend/MeetSpase.Infrastructure/DependencyInjection.cs (UseOpenIddict on DbContext)
+- Backend/MeetSpase.Infrastructure/Data/DbSeeder.cs (seed OpenIddict application)
+- Backend/MeetSpase.Infrastructure/Services/JwtService.cs (stubbed out)
+- Backend/MeetSpase.Infrastructure/MeetSpase.Infrastructure.csproj (added OpenIddict.EntityFrameworkCore, bumped EF Core)
+- Backend/MeetSpase.Application/Interfaces/IJwtService.cs (stubbed out)
+- Backend/MeetSpase.Application/Features/Auth/Login/*.cs (stubbed out)
+- Backend/MeetSpase.Application/MeetSpase.Application.csproj (removed Identity.Core/BCrypt packages)
+
+---
+
 ## Session: February 26, 2026
 
 ### Request 1: Split MVP SRS into Tasks

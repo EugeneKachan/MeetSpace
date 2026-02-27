@@ -1,0 +1,52 @@
+<div class="dashboard-container">
+  @if (user) {
+    <mat-card class="welcome-card">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon class="avatar-icon">account_circle</mat-icon>
+          Welcome, {{ user.name }}
+        </mat-card-title>
+        <mat-card-subtitle>{{ user.email }}</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="role-chip">
+          <span class="role-label">Role:</span>
+          <mat-chip [color]="getRoleColor()" highlighted>{{ user.role }}</mat-chip>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <div class="quick-actions">
+      <mat-card class="action-card">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon>meeting_room</mat-icon> Rooms
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>Browse and book meeting rooms across all offices.</mat-card-content>
+      </mat-card>
+
+      @if (user.role === 'Admin' || user.role === 'OfficeManager') {
+        <mat-card class="action-card">
+          <mat-card-header>
+            <mat-card-title>
+              <mat-icon>business</mat-icon> Offices
+            </mat-card-title>
+          </mat-card-header>
+          <mat-card-content>Manage offices and their rooms.</mat-card-content>
+        </mat-card>
+      }
+
+      @if (user.role === 'Admin') {
+        <mat-card class="action-card">
+          <mat-card-header>
+            <mat-card-title>
+              <mat-icon>people</mat-icon> Users
+            </mat-card-title>
+          </mat-card-header>
+          <mat-card-content>Manage system users and their roles.</mat-card-content>
+        </mat-card>
+      }
+    </div>
+  }
+</div>

@@ -12,20 +12,18 @@
 
   <ItemGroup>
     <!-- Entity Framework Core -->
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.0" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.0" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.0">
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.11" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.11" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.11">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
 
     <!-- CQRS & Mediator -->
     <PackageReference Include="MediatR" Version="12.1.1" />
-    <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="12.1.0" />
 
-    <!-- JWT Authentication -->
-    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="7.0.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.0" />
+    <!-- OpenIddict (OIDC/OAuth2 server + token validation) -->
+    <PackageReference Include="OpenIddict.AspNetCore" Version="5.5.0" />
 
     <!-- Logging & Configuration -->
     <PackageReference Include="Serilog.AspNetCore" Version="7.0.0" />
@@ -35,7 +33,7 @@
     <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="11.7.1" />
 
     <!-- Swagger/OpenAPI -->
-    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.6" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
 
     <!-- AutoMapper -->
     <PackageReference Include="AutoMapper" Version="12.0.1" />

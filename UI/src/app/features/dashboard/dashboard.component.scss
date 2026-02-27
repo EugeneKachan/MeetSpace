@@ -1,0 +1,57 @@
+.dashboard-container {
+  padding: 24px;
+  max-width: 1024px;
+  margin: 0 auto;
+}
+
+.welcome-card {
+  margin-bottom: 24px;
+
+  mat-card-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 1.4rem;
+  }
+
+  .avatar-icon {
+    font-size: 2rem;
+    width: 2rem;
+    height: 2rem;
+    color: #1976d2;
+  }
+
+  .role-chip {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 12px;
+
+    .role-label {
+      font-weight: 500;
+      color: #555;
+    }
+  }
+}
+
+.quick-actions {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 16px;
+}
+
+.action-card {
+  cursor: pointer;
+  transition: box-shadow 0.2s;
+
+  &:hover {
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15) !important;
+  }
+
+  mat-card-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 1rem;
+  }
+}

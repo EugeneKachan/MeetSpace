@@ -7,6 +7,163 @@ This document preserves a chronological record of all user requests made during 
 
 ---
 
+## Session: February 27, 2026 (PR #2 - Sub-PR addressing review feedback)
+
+### Request 1: Remove unused theme.scss
+**Time**: February 27, 2026
+**Request**: "@copilot open a new pull request to apply changes based on [this feedback](https://github.com/EugeneKachan/MeetSpace/pull/1#discussion_r2864430779)" — feedback stated `theme.scss` is unused/duplicate and should be removed or consolidated with `styles.scss`.
+
+**Outcome**:
+- Removed `UI/src/styles/theme.scss` — file was not imported or referenced anywhere; `styles.scss` already contains a complete Angular Material theme setup.
+- Removed the now-empty `UI/src/styles/` directory.
+
+**Files Deleted**:
+- UI/src/styles/theme.scss
+## Session: February 27, 2026 (PR feedback)
+
+### Request 1: Fix task doc admin identifier to match implementation
+**Time**: February 27, 2026
+**Request**: PR review feedback — task doc says `Default user: admin` but seeding uses email-based identity (`admin@meetspase.com`). Update doc to match actual identifier and avoid documenting a real default password.
+
+**Outcome**:
+- Updated `Default user: admin` → `Default admin email: admin@meetspase.com (change password after first login)`
+
+**Files Affected**:
+- documentation/tasks/002-Task-Authorization.md
+
+## Session: February 27, 2026 (Sub-PR)
+
+### Request 1: Add null validation in AuthController (sub-PR)
+**Time**: February 27, 2026
+**Request**: "@copilot open a new pull request to apply changes based on feedback: `request.Username!` and `request.Password!` are null-forgiven. If either field is missing in the token request, this will throw before a proper OAuth error is returned. Validate `request.Username`/`request.Password` (and ideally `request.ClientId`) and return an OpenIddict error response (e.g., invalid_request/invalid_grant) instead of relying on null-forgiveness."
+
+**Outcome**:
+- Removed null-forgiveness operators (`!`) from `request.Username` and `request.Password`
+- Added explicit `string.IsNullOrEmpty` checks for `request.ClientId`, `request.Username`, and `request.Password` before they are used
+- Added `InvalidRequest` private helper method returning OpenIddict `invalid_request` error (mirroring existing `InvalidGrant` helper)
+- All missing-parameter cases now return a proper RFC 6749-compliant `invalid_request` OAuth error response instead of throwing a `NullReferenceException`
+
+**Files Modified**:
+- Backend/MeetSpase.API/Controllers/AuthController.cs
+
+---
+
+## Session: February 27, 2026
+
+### Request 3: Fix hardcoded admin password in DbSeeder
+**Time**: February 27, 2026
+**Request**: "@copilot open a new pull request to apply changes based on feedback: The default admin password is hard-coded ('Admin@123') and the user is seeded automatically. This creates a serious security risk if it ever runs outside local dev. Read the initial password from secure configuration/secret storage, require rotation, and/or only seed the admin account in Development (or behind an explicit opt-in flag)."
+
+**Outcome**:
+- Removed hardcoded `"Admin@123"` password from `DbSeeder.SeedAsync`
+- Added optional `string? adminPassword` parameter to `DbSeeder.SeedAsync` (defaults to `null`)
+- Admin seeding is skipped (opt-in) when `AdminSeed:Password` is not set in configuration
+- `AdminSeed:Password` added to `appsettings.Development.json` for local development only
+- In non-Development environments, the password must be supplied via environment variable (`AdminSeed__Password`), Azure Key Vault, or other secret storage
+
+**Files Affected**:
+- Backend/MeetSpase.Infrastructure/Data/DbSeeder.cs
+- Backend/MeetSpase.API/Program.cs
+- Backend/MeetSpase.API/appsettings.Development.json
+
+---
+
+### Request 1: Implement Tasks 001 + 002 using ASP.NET Core Identity
+**Time**: February 27, 2026
+**Request**: "002" (via back-end-task-implementation.prompt.md) + "Make a corrections. I don't want to implement my own logic, just use library Microsoft.AspNetCore.Identity, use already existing models in this library and logic for authentication and authorization"
+
+**Outcome**:
+- Replaced custom `User` entity and BCrypt password logic with `ApplicationUser : IdentityUser`
+- Replaced custom `UserRole` enum with `UserRoles` static string constants for Identity roles
+- `UserManager<ApplicationUser>` used for user lookup and password verification (replaces custom repository + BCrypt)
+- `RoleManager<IdentityRole>` used for role management
+- `AppDbContext` extends `IdentityDbContext<ApplicationUser>` — Identity tables managed automatically
+- `DbSeeder` seeds three roles (Employee, OfficeManager, Admin) and a default admin via `UserManager`
+- `JwtService` is async; retrieves roles from `UserManager.GetRolesAsync` for JWT claims
+- `AddIdentityCore<ApplicationUser>` configured with password policy; no cookie auth conflicts with JWT
+- Default admin: `admin@meetspase.com` / `Admin@123`
+
+**Files Created**:
+- Backend/MeetSpase.Domain/Enums/UserRole.cs (`UserRoles` static constants)
+- Backend/MeetSpase.Domain/Entities/User.cs (`ApplicationUser : IdentityUser`)
+- Backend/MeetSpase.Application/Interfaces/IJwtService.cs
+- Backend/MeetSpase.Application/Interfaces/IUserRepository.cs (stub, superseded by UserManager)
+- Backend/MeetSpase.Application/Features/Auth/Login/LoginCommand.cs
+- Backend/MeetSpase.Application/Features/Auth/Login/LoginResponse.cs
+- Backend/MeetSpase.Application/Features/Auth/Login/LoginCommandHandler.cs
+- Backend/MeetSpase.Application/Features/Auth/Login/LoginCommandValidator.cs
+- Backend/MeetSpase.Application/DependencyInjection.cs
+- Backend/MeetSpase.Infrastructure/Data/AppDbContext.cs
+- Backend/MeetSpase.Infrastructure/Data/DbSeeder.cs
+- Backend/MeetSpase.Infrastructure/Repositories/UserRepository.cs
+- Backend/MeetSpase.Infrastructure/Services/JwtService.cs
+- Backend/MeetSpase.Infrastructure/DependencyInjection.cs
+- Backend/MeetSpase.API/Authorization/Policies.cs
+- Backend/MeetSpase.API/Controllers/AuthController.cs
+
+**Files Modified**:
+- Backend/MeetSpase.Domain/MeetSpase.Domain.csproj (FrameworkReference for ASP.NET Core Identity)
+- Backend/MeetSpase.Application/MeetSpase.Application.csproj
+- Backend/MeetSpase.Infrastructure/MeetSpase.Infrastructure.csproj
+- Backend/MeetSpase.API/MeetSpase.API.csproj
+- Backend/MeetSpase.API/Program.cs
+
+---
+
+### Request 2: Replace custom JWT with OpenIddict (OIDC/OAuth2)
+**Time**: February 27, 2026
+**Request**: "Lets use OIDC/OAuth2" / "why do you use custom token generation, I don't want to use IJwtService, can I use default api from the library box?"
+
+**Outcome**:
+- Integrated **OpenIddict 5.5.0** as the OAuth2/OIDC server and token validator
+- Removed `IJwtService`, `JwtService`, and all custom JWT signing/validation logic
+- Removed Login CQRS feature files (`LoginCommand`, `LoginCommandHandler`, etc.) — superseded by OpenIddict token endpoint
+- `AuthController` rewritten as a standard OAuth2 token endpoint at `POST /connect/token`
+- Password grant (ROPC): `grant_type=password&client_id=meetspase-angular&username={email}&password={pass}`
+- OpenIddict issues and validates tokens; replaces `Microsoft.AspNetCore.Authentication.JwtBearer` entirely
+- `AppDbContext` registered with `UseOpenIddict()` — OpenIddict stores (applications, tokens, authorizations) auto-migrated via EF Core
+- `DbSeeder` seeds the Angular SPA as a public OpenIddict client (`meetspase-angular`)
+- Development: auto-generated signing & encryption certificates via `AddDevelopmentEncryptionCertificate()` / `AddDevelopmentSigningCertificate()`
+- Bumped EF Core packages to `8.0.11` to resolve OpenIddict transitive version requirements
+
+**Files Modified**:
+- Backend/MeetSpase.API/Controllers/AuthController.cs (full rewrite as OpenIddict token endpoint)
+- Backend/MeetSpase.API/Program.cs (replaced JwtBearer with OpenIddict server + validation)
+- Backend/MeetSpase.API/MeetSpase.API.csproj (JwtBearer → OpenIddict.AspNetCore)
+- Backend/MeetSpase.Infrastructure/DependencyInjection.cs (UseOpenIddict on DbContext)
+- Backend/MeetSpase.Infrastructure/Data/DbSeeder.cs (seed OpenIddict application)
+- Backend/MeetSpase.Infrastructure/Services/JwtService.cs (stubbed out)
+- Backend/MeetSpase.Infrastructure/MeetSpase.Infrastructure.csproj (added OpenIddict.EntityFrameworkCore, bumped EF Core)
+- Backend/MeetSpase.Application/Interfaces/IJwtService.cs (stubbed out)
+- Backend/MeetSpase.Application/Features/Auth/Login/*.cs (stubbed out)
+- Backend/MeetSpase.Application/MeetSpase.Application.csproj (removed Identity.Core/BCrypt packages)
+
+### Request 9: Scope Bearer Token to API Origin
+**Time**: February 27, 2026
+**Request**: *(User edit)* Auth interceptor updated to only attach `Authorization: Bearer` header when the request targets the application's own API (`environment.apiUrl`).
+
+**Outcome**:
+- `AuthInterceptor.intercept()` now checks `request.url.startsWith(environment.apiUrl)` before injecting the token
+- Prevents accidental credential leakage to third-party URLs (Google Fonts, CDNs, etc.)
+
+**Files Modified**:
+- UI/src/app/core/interceptors/auth.interceptor.ts
+
+---
+
+### Request 10: Replace FrameworkReference with Explicit Identity Package in Domain
+**Time**: February 27, 2026
+**Request**: *(User edit)* `MeetSpase.Domain.csproj` updated to reference `Microsoft.AspNetCore.Identity` as a direct NuGet package instead of the broad `Microsoft.AspNetCore.App` framework reference.
+
+**Outcome**:
+- `<FrameworkReference Include="Microsoft.AspNetCore.App" />` replaced with `<PackageReference Include="Microsoft.AspNetCore.Identity" Version="8.0.0" />`
+- Domain project no longer pulls in the entire ASP.NET Core framework; dependency is minimal and explicit
+
+**Files Modified**:
+- Backend/MeetSpase.Domain/MeetSpase.Domain.csproj
+
+---
+
 ## Session: February 26, 2026
 
 ### Request 1: Split MVP SRS into Tasks

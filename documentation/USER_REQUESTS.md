@@ -26,6 +26,24 @@ This document preserves a chronological record of all user requests made during 
 
 ## Session: February 27, 2026
 
+### Request 3: Fix hardcoded admin password in DbSeeder
+**Time**: February 27, 2026
+**Request**: "@copilot open a new pull request to apply changes based on feedback: The default admin password is hard-coded ('Admin@123') and the user is seeded automatically. This creates a serious security risk if it ever runs outside local dev. Read the initial password from secure configuration/secret storage, require rotation, and/or only seed the admin account in Development (or behind an explicit opt-in flag)."
+
+**Outcome**:
+- Removed hardcoded `"Admin@123"` password from `DbSeeder.SeedAsync`
+- Added optional `string? adminPassword` parameter to `DbSeeder.SeedAsync` (defaults to `null`)
+- Admin seeding is skipped (opt-in) when `AdminSeed:Password` is not set in configuration
+- `AdminSeed:Password` added to `appsettings.Development.json` for local development only
+- In non-Development environments, the password must be supplied via environment variable (`AdminSeed__Password`), Azure Key Vault, or other secret storage
+
+**Files Affected**:
+- Backend/MeetSpase.Infrastructure/Data/DbSeeder.cs
+- Backend/MeetSpase.API/Program.cs
+- Backend/MeetSpase.API/appsettings.Development.json
+
+---
+
 ### Request 1: Implement Tasks 001 + 002 using ASP.NET Core Identity
 **Time**: February 27, 2026
 **Request**: "002" (via back-end-task-implementation.prompt.md) + "Make a corrections. I don't want to implement my own logic, just use library Microsoft.AspNetCore.Identity, use already existing models in this library and logic for authentication and authorization"

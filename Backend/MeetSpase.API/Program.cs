@@ -139,7 +139,8 @@ using (var scope = app.Services.CreateScope())
     var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
     var applicationManager = scope.ServiceProvider.GetRequiredService<IOpenIddictApplicationManager>();
     var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
-    await DbSeeder.SeedAsync(userManager, roleManager, applicationManager, logger);
+    var adminPassword = builder.Configuration["AdminSeed:Password"];
+    await DbSeeder.SeedAsync(userManager, roleManager, applicationManager, logger, adminPassword);
 }
 
 // Configure the HTTP request pipeline

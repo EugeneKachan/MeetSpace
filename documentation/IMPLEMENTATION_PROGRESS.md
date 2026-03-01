@@ -1,6 +1,6 @@
 ## MeetSpace - Implementation Progress Tracker
 
-**Last Updated**: February 27, 2026 (Office manager assignment — backend + frontend complete)  
+**Last Updated**: March 1, 2026 (All 18/18 frontend tasks confirmed complete — Tasks 007/008/009 UI entries added to checklist)  
 **Project Status**: In Progress
 
 ---
@@ -9,9 +9,9 @@
 
 | Component | Completed | Total | Percentage |
 |-----------|-----------|-------|-----------|
-| Backend   | 12/18     | 18    | 66.7%     |
-| Frontend  | 8/18      | 18    | 44.4%     |
-| **Total** | **20/36** | **36** | **55.6%** |
+| Backend   | 18/18     | 18    | 100%      |
+| Frontend  | 18/18     | 18    | 100%      |
+| **Total** | **36/36** | **36** | **100%** |
 
 ---
 
@@ -42,11 +42,12 @@
 - [x] **Task 012** - Deactivate Room (Soft delete via IsActive flag)
 
 ### Booking Management (All Roles)
-- [ ] **Task 013** - View Offices (List active offices)
-- [ ] **Task 014** - View Rooms (Filter rooms by office, date, capacity)
-- [ ] **Task 015** - Create Booking (Book room with conflict validation)
-- [ ] **Task 016** - Booking Conflict Rule (Validate no overlapping bookings)
-- [ ] **Task 017** - Cancel Booking (Soft delete bookings)
+- [x] **Task 013** - View Offices (`GET /api/offices/active` — all authenticated users, returns active offices only)
+- [x] **Task 014** - View Rooms (`GET /api/rooms?officeId=&minCapacity=&date=&startTime=&endTime=` — all authenticated users, filters active rooms by office/capacity; date-time availability filtering wires in with Task 015-016)
+- [x] **Task 015** - Create Booking (`POST /api/bookings` — office/room active checks, conflict validation, persists booking)
+- [x] **Task 016** - Booking Conflict Rule (Application-layer overlap check; DB index on `(RoomId, StartTime, EndTime WHERE NOT IsCancelled)`)
+- [x] **Task 017** - Cancel Booking (`DELETE /api/bookings/{id}` — owner or Manager/Admin; sets `IsCancelled = true`)
+- [x] **Task GET** - List User Bookings (`GET /api/bookings` — returns `BookingSummaryDto[]` for the current user, newest first)
 
 ### Implementation Notes
 - MediatR for CQRS pattern implementation
@@ -56,14 +57,30 @@
 - JWT tokens for stateless authentication
 
 ### Backend Tests
-- ✅ Unit tests added for `UsersController` (xUnit + Moq)
-   - Project: `Backend/MeetSpace.API.Tests`
-   - Tests added: `UsersControllerTests` covering `GetAll`, `Create`, `Update` (id mismatch and success)
-   - Test run: `dotnet test Backend/MeetSpace.API.Tests/MeetSpace.API.Tests.csproj` → **4 passed, 0 failed** (run executed on Feb 27, 2026)
+- ✅ Unit tests (xUnit + Moq) — **78 total, 0 failed** (last run March 1, 2026)
+
+   | File | Project | Tests | Coverage |
+   |------|---------|-------|----------|
+   | `UsersControllerTests.cs` | API.Tests | 5 | `GetAll`; `Create`; `Update` (mismatch + success); pagination param forwarding |
+   | `OfficesControllerTests.cs` | API.Tests | 9 | `GetActive`; `GetAll`; `Create`; `Update`; `Deactivate`; `AssignManager`; `RemoveManager`; pagination param forwarding |
+   | `BookingsControllerTests.cs` | API.Tests | 6 | `Create` (success, null request); `Cancel` (200, correct userId); `GetMine` (200 with list; correct userId in query) |
+   | `CreateOfficeCommandHandlerTests.cs` | Application.Tests | 3 | Adds office; maps rooms; ID matches |
+   | `UpdateOfficeCommandHandlerTests.cs` | Application.Tests | 2 | Not found → exception; success |
+   | `DeactivateOfficeCommandHandlerTests.cs` | Application.Tests | 2 | Not found → exception; sets IsActive=false |
+   | `GetOfficesQueryHandlerTests.cs` | Application.Tests | 13 | No filter; user filter; DTO mapping; rooms; empty; search by name; search by address; case-insensitive; paging; TotalCount; sort addr asc/desc; default sort by name |
+   | `AssignManagerCommandHandlerTests.cs` | Application.Tests | 5 | Office/user not found; wrong role; duplicate; success |
+   | `RemoveManagerCommandHandlerTests.cs` | Application.Tests | 2 | Not found → exception; success |
+   | `CreateUserCommandHandlerTests.cs` | Application.Tests | 3 | Creates user; maps fields; returns ID |
+   | `UpdateUserCommandHandlerTests.cs` | Application.Tests | 2 | Not found → exception; success |
+   | `GetUsersQueryHandlerTests.cs` | Application.Tests | 9 | Returns all with roles; search by firstName; search by email; paging; TotalCount; sort firstName asc/desc; default sort lastName then firstName |
+   | `GetUserBookingsQueryHandlerTests.cs` | Application.Tests | 6 | DTO mapping; date/time format; empty list; null Room nav prop; cancelled flag; multiple bookings |
+   | `CreateBookingCommandHandlerTests.cs` | Application.Tests | 6 | Success; office not found/inactive; room not found/inactive/wrong office; conflict |
+   | `CancelBookingCommandHandlerTests.cs` | Application.Tests | 4 | Owner cancel; manager cancel; unauthorized; not found |
+
    - To run locally:
       ```powershell
       cd Backend
-      dotnet test MeetSpace.API.Tests/MeetSpace.API.Tests.csproj
+      dotnet test MeetSpace.slnx
       ```
 
 ---
@@ -86,19 +103,21 @@
 - [x] **Task 006** - Offices Page (List offices, edit/add/remove via modal with rooms management)
   - Enhanced: Office manager assignment (Admin can assign/remove OfficeManager users per office)
   - OfficeManagers see only their assigned offices; read-only office details, manage rooms only
+- [x] **Task 007** - Create Office (`OfficesPageComponent.openCreateOfficeDialog()` opens `OfficeDialogComponent` in create mode; calls `POST /api/offices`; snackbar confirmation on success)
+- [x] **Task 008** - Update Office (`OfficesPageComponent.openEditOfficeDialog(office)` opens `OfficeDialogComponent` in edit mode; calls `PUT /api/offices/{id}`; snackbar confirmation on success)
+- [x] **Task 009** - Deactivate Office (`OfficesPageComponent.deactivateOffice(office)` calls `DELETE /api/offices/{id}`; confirm prompt before deactivation; row updated in place)
 
 ### Room Management (Manager and Admin)
-- [ ] **Task 007** - Create Room Page (Room creation form)
-- [ ] **Task 008** - Update Room Page (Room edit form)
-- [ ] **Task 009** - Deactivate Room Page (Room list with deactivate action)
+- [x] **Task 010** - Create Room (Room add form embedded in Office dialog — real-time save via `POST /api/rooms`)
+- [x] **Task 011** - Update Room (Room edit form in Office dialog — saves via `PUT /api/rooms/{id}`)
+- [x] **Task 012** - Deactivate Room (Deactivate button in Office dialog — calls `DELETE /api/rooms/{id}`)
 
 ### Booking Management (All Roles)
-- [x] **Task 010** - My Booking Page (Default after login, replaces Dashboard)
-- [ ] **Task 011** - Booking Page (List offices in table)
-- [ ] **Task 012** - View Rooms Page (List rooms in table)
-- [ ] **Task 013** - Create Booking Form (Booking creation with conflict checking)
-- [ ] **Task 014** - Booking Conflict Handling (Display error on conflict)
-- [ ] **Task 015** - Cancel Booking UI (Cancel button and confirmation)
+- [x] **Task 013** - Select Office Page (`/book` — grid of active offices, all authenticated users, links to room selection)
+- [x] **Task 014** - Select Room Page (`/book/rooms?officeId=` — room cards with capacity/date/time filters; time filters now use mat-select hour/minute dropdowns)
+- [x] **Task 015** - Create Booking Form (`/book/create?officeId=&roomId=&officeName=&roomName=` — date via mat-datepicker; start/end time via mat-select hour/minute dropdowns; title; end-after-start validation)
+- [x] **Task 016** - Booking Conflict Handling (`errorMessage` displayed in form on 409 conflict or 400 validation API responses)
+- [x] **Task 017** - Cancel Booking UI (`/my-bookings` — mat-table of all user bookings; inline confirmation banner; cancel button calls `DELETE /api/bookings/{id}`; cancelled rows dimmed)
 
 ### Implementation Notes
 - Angular Material components for consistent UI
@@ -111,19 +130,26 @@
 - HttpClient with AuthInterceptor for JWT handling
 - RxJS Observables for state management
 - Feature-based module organization
+- `BookingModule` (`/book`) — lazy-loaded, all authenticated users; `BookingService` calls `/api/offices/active`, `/api/rooms`, `POST /api/bookings`, `DELETE /api/bookings/{id}`, `GET /api/bookings`
+- `Book a Room` nav item visible to all authenticated users; `My Bookings` page shows bookings table with cancel action
+- Angular Material 17 has no native timepicker; time selection implemented via paired `mat-select` (hour 00–23, minute 00/15/30/45) throughout booking flow
+- Server-side pagination on Users (`GET /api/users`) and Offices (`GET /api/offices`) endpoints; shared `PagedResult<T>` type in `MeetSpace.Application.Common`; both pages use debounced search, server-sort, and page controls
 
 ### UI Tests
 - ✅ Unit tests added for key frontend pieces (Karma + Jasmine)
-   - Spec files added:
+   - Spec files:
       - `src/app/core/services/auth.service.spec.ts`
       - `src/app/core/services/users.service.spec.ts`
+      - `src/app/core/services/offices.service.spec.ts`
       - `src/app/core/interceptors/auth.interceptor.spec.ts`
       - `src/app/core/guards/auth.guard.spec.ts`
       - `src/app/features/auth/login/login.component.spec.ts`
       - `src/app/features/users/user-management/user-management.component.spec.ts`
       - `src/app/features/users/create-user-dialog/create-user-dialog.component.spec.ts`
       - `src/app/features/users/edit-user-dialog/edit-user-dialog.component.spec.ts`
-   - Test run: `ng test --watch=false --browsers=ChromeHeadless` → **92/92 tests passing** (run executed on Feb 27, 2026)
+      - `src/app/features/offices/offices-page/offices-page.component.spec.ts`
+      - `src/app/features/offices/office-dialog/office-dialog.component.spec.ts`
+   - Test run: `ng test --watch=false --browsers=ChromeHeadless` → **170/170 tests passing** (last run March 1, 2026)
    - To run locally (headless):
       ```powershell
       cd UI
@@ -152,21 +178,12 @@ Task 000 (Project Init)
 
 ## 🎯 Upcoming Tasks
 
-### Priority 1 (Core Features)
-1. Task 001 - Login Backend
-2. Task 002 - Authorization Backend
-3. Task 001 - Login Page
-4. Task 006 - Offices Page (UI with modal management)
+All planned MVP tasks (000–017) are complete across backend and frontend. Future work items to consider:
 
-### Priority 2 (Admin Functions)
-5. Task 003-005 - User Management
-6. Task 007-009 - Office CRUD Endpoints
-7. Task 003-005 - User Management Pages
-
-### Priority 3 (Booking System)
-8. Task 010-012 - Room Management
-9. Task 013-017 - Booking Management
-10. Task 006-017 - All UI Pages
+- Automated end-to-end tests (Playwright / Cypress)
+- Production deployment pipeline (Docker, Azure)
+- Refresh token + silent token renewal
+- Admin dashboard / analytics
 
 ---
 
@@ -195,21 +212,7 @@ Task 000 (Project Init)
 
 ## ⚠️ Pending Implementation
 
-### Backend - High Priority
-- Database migrations and DbContext implementation
-- User entity and repository
-- Login command handler
-- Authorization policies
-- API endpoints (Controllers)
-- DTOs for request/response
-
-### Frontend - High Priority
-- Feature modules (Auth, Users, Offices, Rooms, Bookings)
-- Login component
-- API service implementations
-- Form components for CRUD operations
-- Table components for data display
-- Modal dialogs for add/edit operations
+All MVP tasks are complete. No known outstanding backend or frontend items.
 
 ---
 
@@ -242,17 +245,17 @@ For each task, ensure:
 
 | Milestone | Target Tasks | Status |
 |-----------|-------------|--------|
-| **MVP 1.0** | Auth + User Management | � In Progress |
-| **MVP 1.1** | Office & Room Management | 🔴 Not Started |
-| **MVP 1.2** | Booking System | 🔴 Not Started |
-| **MVP 1.3** | Polish & Optimization | 🔴 Not Started |
+| **MVP 1.0** | Auth + User Management | ✅ Complete |
+| **MVP 1.1** | Office & Room Management | ✅ Complete |
+| **MVP 1.2** | Booking System | ✅ Complete |
+| **MVP 1.3** | Polish & Optimization | 🟡 Ongoing |
 
 ---
 
 ## 📞 Notes & Blockers
 
-- **None currently** - Ready to proceed with Task 001 (Login Backend)
+No active blockers. All EF Core migrations have been applied.
 
 ---
 
-**Next Action**: Implement Task 001 - Login Backend using `prompts/dotnet-backend-expert.md`
+**Next Action**: Consider end-to-end testing and production deployment pipeline.

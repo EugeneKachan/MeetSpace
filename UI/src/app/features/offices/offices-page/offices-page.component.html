@@ -5,9 +5,8 @@
       <p class="subtitle">{{ isAdmin ? 'Manage offices and their rooms' : 'Manage rooms in your assigned offices' }}</p>
     </div>
     @if (isAdmin) {
-      <button mat-raised-button color="primary" (click)="openCreateOfficeDialog()">
+      <button mat-mini-fab color="primary" (click)="openCreateOfficeDialog()" matTooltip="Add Office">
         <mat-icon>add_business</mat-icon>
-        Add Office
       </button>
     }
   </div>
@@ -15,7 +14,7 @@
   <!-- Search bar -->
   <mat-form-field appearance="outline" class="search-field">
     <mat-label>Search offices</mat-label>
-    <input matInput (keyup)="applyFilter($event)" placeholder="Name, address..." />
+    <input matInput (input)="onSearchInput($event)" placeholder="Name, address..." />
     <mat-icon matSuffix>search</mat-icon>
   </mat-form-field>
 
@@ -119,6 +118,6 @@
       </tr>
     </table>
 
-    <mat-paginator [pageSizeOptions]="[10, 25, 50]" showFirstLastButtons></mat-paginator>
+    <mat-paginator [length]="totalCount" [pageSizeOptions]="[10, 25, 50]" showFirstLastButtons></mat-paginator>
   </div>
 </div>

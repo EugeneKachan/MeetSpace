@@ -4,54 +4,69 @@
   margin: 0 auto;
 }
 
-.welcome-card {
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   margin-bottom: 24px;
+}
 
-  mat-card-title {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 1.4rem;
+.page-title {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.error-message {
+  color: var(--mat-form-field-error-text-color, #f44336);
+  font-size: 0.875rem;
+  margin-bottom: 16px;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 48px 24px;
+
+  .empty-icon {
+    font-size: 48px;
+    height: 48px;
+    width: 48px;
+    color: rgba(0, 0, 0, 0.3);
+    margin-bottom: 12px;
   }
 
-  .avatar-icon {
-    font-size: 2rem;
-    width: 2rem;
-    height: 2rem;
-    color: #1976d2;
+  p {
+    margin-bottom: 16px;
+    color: rgba(0, 0, 0, 0.6);
   }
+}
 
-  .role-chip {
+.confirm-card {
+  margin-bottom: 16px;
+  border-left: 4px solid #f44336;
+
+  mat-card-content {
     display: flex;
     align-items: center;
     gap: 12px;
-    margin-top: 12px;
-
-    .role-label {
-      font-weight: 500;
-      color: #555;
-    }
+    flex-wrap: wrap;
   }
 }
 
-.quick-actions {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: 16px;
+.confirm-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
 }
 
-.action-card {
-  cursor: pointer;
-  transition: box-shadow 0.2s;
+.bookings-table {
+  width: 100%;
 
-  &:hover {
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15) !important;
+  .mat-column-actions {
+    width: 60px;
+    text-align: center;
   }
+}
 
-  mat-card-title {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 1rem;
-  }
+.cancelled-row {
+  opacity: 0.55;
 }

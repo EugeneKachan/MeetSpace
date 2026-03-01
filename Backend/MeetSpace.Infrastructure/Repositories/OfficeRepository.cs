@@ -18,6 +18,12 @@ public class OfficeRepository : IOfficeRepository
                  .OrderBy(o => o.Name)
                  .ToListAsync(ct);
 
+    public async Task<IReadOnlyList<Office>> GetActiveAsync(CancellationToken ct = default) =>
+        await _db.Offices
+                 .Where(o => o.IsActive)
+                 .OrderBy(o => o.Name)
+                 .ToListAsync(ct);
+
     public async Task<IReadOnlyList<Office>> GetByAssignedUserAsync(string userId, CancellationToken ct = default) =>
         await _db.Offices
                  .Include(o => o.Rooms)

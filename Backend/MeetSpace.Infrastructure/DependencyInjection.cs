@@ -34,6 +34,7 @@ public static class DependencyInjection
 
         services.AddScoped<IOfficeRepository, OfficeRepository>();
         services.AddScoped<IRoomRepository, RoomRepository>();
+        services.AddScoped<IBookingRepository, BookingRepository>();
 
         return services;
     }

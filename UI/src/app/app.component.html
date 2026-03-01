@@ -43,6 +43,14 @@
           }
         </a>
 
+        <a mat-list-item routerLink="/book" routerLinkActive="active-link"
+           [matTooltip]="sidenavCollapsed ? 'Book a Room' : ''" matTooltipPosition="right">
+          <mat-icon matListItemIcon>meeting_room</mat-icon>
+          @if (!sidenavCollapsed) {
+            <span matListItemTitle>Book a Room</span>
+          }
+        </a>
+
         @if (user.role === 'Admin' || user.role === 'OfficeManager') {
           <mat-divider></mat-divider>
           @if (!sidenavCollapsed) {

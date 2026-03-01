@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { User, CreateUserRequest, UpdateUserRequest } from '../../models/entities.model';
+import { User, CreateUserRequest, UpdateUserRequest, PagedResult } from '../../models/entities.model';
 
 @Injectable({
   providedIn: 'root'
@@ -12,8 +12,20 @@ export class UsersService {
 
   constructor(private http: HttpClient) {}
 
-  getUsers(): Observable<User[]> {
-    return this.http.get<User[]>(this.apiUrl);
+  public getUsers(
+    page: number = 1,
+    pageSize: number = 10,
+    search: string = '',
+    sortBy: string = 'lastName',
+    sortDir: string = 'asc'
+  ): Observable<PagedResult<User>> {
+    const params = new HttpParams()
+      .set('page', page.toString())
+      .set('pageSize', pageSize.toString())
+      .set('search', search)
+      .set('sortBy', sortBy)
+      .set('sortDir', sortDir);
+    return this.http.get<PagedResult<User>>(this.apiUrl, { params });
   }
 
   createUser(request: CreateUserRequest): Observable<User> {

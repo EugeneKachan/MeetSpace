@@ -1,0 +1,139 @@
+<div class="select-room-container">
+  <div class="page-header">
+    <button mat-icon-button (click)="goBack()" aria-label="Back to office selection">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <div>
+      <h2 class="page-title">Select a Room</h2>
+      <p class="page-subtitle">{{ officeName }}</p>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <mat-card class="filter-card">
+    <mat-card-content>
+      <form [formGroup]="filterForm" (ngSubmit)="onSearch()" class="filter-form">
+        <mat-form-field appearance="outline" class="filter-field">
+          <mat-label>Min Capacity</mat-label>
+          <input matInput type="number" min="1" formControlName="minCapacity"
+                 placeholder="e.g. 4" aria-label="Minimum room capacity" />
+          <mat-icon matSuffix>people</mat-icon>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="filter-field">
+          <mat-label>Date</mat-label>
+          <input matInput [matDatepicker]="datePicker" formControlName="date"
+                 placeholder="Pick a date" aria-label="Booking date" readonly />
+          <mat-datepicker-toggle matIconSuffix [for]="datePicker"></mat-datepicker-toggle>
+          <mat-datepicker #datePicker></mat-datepicker>
+        </mat-form-field>
+
+        <div class="time-filter-group">
+          <span class="time-filter-label">Start Time</span>
+          <div class="time-filter-selects">
+            <mat-form-field appearance="outline" class="time-filter-field">
+              <mat-label>Hour</mat-label>
+              <mat-select formControlName="startHour" aria-label="Start hour">
+                <mat-option [value]="null">—</mat-option>
+                @for (h of hours; track h) {
+                  <mat-option [value]="h">{{ formatHour(h) }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+            <span class="time-colon">:</span>
+            <mat-form-field appearance="outline" class="time-filter-field">
+              <mat-label>Min</mat-label>
+              <mat-select formControlName="startMinute" aria-label="Start minute">
+                <mat-option [value]="null">—</mat-option>
+                @for (m of minutes; track m) {
+                  <mat-option [value]="m">{{ formatMinute(m) }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+          </div>
+        </div>
+
+        <div class="time-filter-group">
+          <span class="time-filter-label">End Time</span>
+          <div class="time-filter-selects">
+            <mat-form-field appearance="outline" class="time-filter-field">
+              <mat-label>Hour</mat-label>
+              <mat-select formControlName="endHour" aria-label="End hour">
+                <mat-option [value]="null">—</mat-option>
+                @for (h of hours; track h) {
+                  <mat-option [value]="h">{{ formatHour(h) }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+            <span class="time-colon">:</span>
+            <mat-form-field appearance="outline" class="time-filter-field">
+              <mat-label>Min</mat-label>
+              <mat-select formControlName="endMinute" aria-label="End minute">
+                <mat-option [value]="null">—</mat-option>
+                @for (m of minutes; track m) {
+                  <mat-option [value]="m">{{ formatMinute(m) }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+          </div>
+        </div>
+
+        <div class="filter-actions">
+          <button mat-mini-fab color="primary" type="submit" matTooltip="Search">
+            <mat-icon>search</mat-icon>
+          </button>
+          <button mat-mini-fab type="button" (click)="onClear()" matTooltip="Clear filters">
+            <mat-icon>clear</mat-icon>
+          </button>
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
+
+  @if (isLoading) {
+    <mat-progress-bar mode="indeterminate" aria-label="Loading rooms"></mat-progress-bar>
+  }
+
+  @if (errorMessage) {
+    <p class="error-message" role="alert">{{ errorMessage }}</p>
+  }
+
+  @if (!isLoading && !errorMessage) {
+    @if (rooms.length === 0) {
+      <mat-card class="empty-state">
+        <mat-card-content>
+          <mat-icon class="empty-icon">meeting_room</mat-icon>
+          <p>No rooms match your criteria. Try adjusting the filters.</p>
+        </mat-card-content>
+      </mat-card>
+    } @else {
+      <div class="room-grid">
+        @for (room of rooms; track room.id) {
+          <mat-card class="room-card">
+            <mat-card-header>
+              <mat-icon matCardAvatar>meeting_room</mat-icon>
+              <mat-card-title>{{ room.name }}</mat-card-title>
+              <mat-card-subtitle>
+                <mat-icon class="inline-icon">people</mat-icon>
+                Capacity: {{ room.capacity }}
+              </mat-card-subtitle>
+            </mat-card-header>
+            @if (room.description) {
+              <mat-card-content>
+                <p class="room-description">{{ room.description }}</p>
+              </mat-card-content>
+            }
+            <mat-card-actions align="end">
+              <button mat-mini-fab color="primary"
+                      (click)="bookRoom(room)"
+                      [attr.aria-label]="'Book room ' + room.name"
+                      matTooltip="Book this room">
+                <mat-icon>event_available</mat-icon>
+              </button>
+            </mat-card-actions>
+          </mat-card>
+        }
+      </div>
+    }
+  }
+</div>

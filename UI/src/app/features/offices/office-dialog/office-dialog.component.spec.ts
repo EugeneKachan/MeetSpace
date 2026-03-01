@@ -12,7 +12,7 @@ import { OfficesService } from '../../../core/services/offices.service';
 import { UsersService } from '../../../core/services/users.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { User as AuthUser } from '../../../models/auth.model';
-import { CreateRoomForOfficeRequest, ManagerSummary, Office, Room, User } from '../../../models/entities.model';
+import { CreateRoomForOfficeRequest, ManagerSummary, Office, PagedResult, Room, User } from '../../../models/entities.model';
 
 // ---------------------------------------------------------------------------
 // Fixtures
@@ -70,7 +70,7 @@ function buildComponent(
   const usersServiceSpy = overrides.usersService ?? jasmine.createSpyObj<UsersService>(
     'UsersService', ['getUsers', 'createUser', 'updateUser'],
   );
-  usersServiceSpy.getUsers.and.returnValue(of([]));
+  usersServiceSpy.getUsers.and.returnValue(of<PagedResult<User>>({ items: [], totalCount: 0, page: 1, pageSize: 1000 }));
 
   const authServiceSpy = jasmine.createSpyObj<AuthService>('AuthService', ['getCurrentUser']);
   authServiceSpy.getCurrentUser.and.returnValue(currentUser);

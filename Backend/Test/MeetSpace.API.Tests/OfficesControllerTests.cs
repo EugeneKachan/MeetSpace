@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
 using MeetSpace.API.Controllers;
+using MeetSpace.Application.Common;
 using MeetSpace.Application.Features.Offices;
 using MeetSpace.Application.Features.Offices.AssignManager;
 using MeetSpace.Application.Features.Offices.CreateOffice;
@@ -62,28 +63,64 @@ namespace MeetSpace.API.Tests
         public async Task GetAll_Admin_PassesNullFilterAndReturnsOk()
         {
             SetUserRole(UserRoles.Admin);
-            var dtos = BuildOfficeDtos(2);
+            var items = BuildOfficeDtos(2);
+            var paged = new PagedResult<OfficeDto>(items, items.Count, 1, 10);
             _mediator.Setup(m => m.Send(It.Is<GetOfficesQuery>(q => q.FilterByUserId == null), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(dtos);
+                .ReturnsAsync(paged);
 
-            var result = await _controller.GetAll(CancellationToken.None);
+            var result = await _controller.GetAll(ct: CancellationToken.None);
 
             var ok = Assert.IsType<OkObjectResult>(result);
-            Assert.Equal(dtos, ok.Value);
+            Assert.Equal(paged, ok.Value);
         }
 
         [Fact]
         public async Task GetAll_OfficeManager_FiltersById()
         {
             SetUserRole(UserRoles.OfficeManager, userId: "mgr-42");
-            var dtos = BuildOfficeDtos(1);
+            var items = BuildOfficeDtos(1);
+            var paged = new PagedResult<OfficeDto>(items, items.Count, 1, 10);
             _mediator.Setup(m => m.Send(It.Is<GetOfficesQuery>(q => q.FilterByUserId == "mgr-42"), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(dtos);
+                .ReturnsAsync(paged);
 
-            var result = await _controller.GetAll(CancellationToken.None);
+            var result = await _controller.GetAll(ct: CancellationToken.None);
 
             var ok = Assert.IsType<OkObjectResult>(result);
-            Assert.Equal(dtos, ok.Value);
+            Assert.Equal(paged, ok.Value);
+        }
+
+        [Fact]
+        public async Task GetAll_Admin_ForwardsPaginationParamsToQuery()
+        {
+            SetUserRole(UserRoles.Admin);
+            var paged = new PagedResult<OfficeDto>(new List<OfficeDto>(), 0, 2, 5);
+            _mediator
+                .Setup(m => m.Send(
+                    It.Is<GetOfficesQuery>(q =>
+                        q.Page           == 2         &&
+                        q.PageSize       == 5         &&
+                        q.Search         == "hq"      &&
+                        q.SortBy         == "address" &&
+                        q.SortDir        == "desc"    &&
+                        q.FilterByUserId == null),
+                    It.IsAny<CancellationToken>()))
+                .ReturnsAsync(paged);
+
+            var result = await _controller.GetAll(
+                page: 2, pageSize: 5, search: "hq",
+                sortBy: "address", sortDir: "desc",
+                ct: CancellationToken.None);
+
+            var ok = Assert.IsType<OkObjectResult>(result);
+            Assert.Equal(paged, ok.Value);
+            _mediator.Verify(
+                m => m.Send(
+                    It.Is<GetOfficesQuery>(q =>
+                        q.Page == 2 && q.PageSize == 5 &&
+                        q.Search == "hq" && q.SortBy == "address" && q.SortDir == "desc" &&
+                        q.FilterByUserId == null),
+                    It.IsAny<CancellationToken>()),
+                Times.Once);
         }
 
         // ── Create ───────────────────────────────────────────────────────────────
@@ -108,7 +145,7 @@ namespace MeetSpace.API.Tests
         [Fact]
         public async Task Update_IdMismatch_ReturnsBadRequest()
         {
-            var cmd = new UpdateOfficeCommand(Guid.NewGuid(), "Name", "Addr");
+            var cmd = new UpdateOfficeCommand(Guid.NewGuid(), "Name", "Addr", true);
 
             var result = await _controller.Update(Guid.NewGuid(), cmd, CancellationToken.None);
 
@@ -119,7 +156,7 @@ namespace MeetSpace.API.Tests
         public async Task Update_Success_ReturnsNoContent()
         {
             var id = Guid.NewGuid();
-            var cmd = new UpdateOfficeCommand(id, "Updated", "New Addr");
+            var cmd = new UpdateOfficeCommand(id, "Updated", "New Addr", true);
             _mediator.Setup(m => m.Send(It.IsAny<UpdateOfficeCommand>(), It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult(default(Unit)));
 

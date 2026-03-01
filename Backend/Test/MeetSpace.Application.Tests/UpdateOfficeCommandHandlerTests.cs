@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using MeetSpace.Application.Features.Offices.UpdateOffice;
@@ -20,7 +21,7 @@ namespace MeetSpace.Application.Tests
                 .ReturnsAsync((Office?)null);
 
             var handler = new UpdateOfficeCommandHandler(_repo.Object);
-            var cmd = new UpdateOfficeCommand(Guid.NewGuid(), "New Name", "New Address");
+            var cmd = new UpdateOfficeCommand(Guid.NewGuid(), "New Name", "New Address", true);
 
             await Assert.ThrowsAsync<KeyNotFoundException>(() => handler.Handle(cmd, CancellationToken.None));
         }
@@ -37,7 +38,7 @@ namespace MeetSpace.Application.Tests
                 .Returns(Task.CompletedTask);
 
             var handler = new UpdateOfficeCommandHandler(_repo.Object);
-            var cmd = new UpdateOfficeCommand(officeId, "New Name", "New Address");
+            var cmd = new UpdateOfficeCommand(officeId, "New Name", "New Address", true);
 
             await handler.Handle(cmd, CancellationToken.None);
 

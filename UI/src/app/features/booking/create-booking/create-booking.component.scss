@@ -1,0 +1,82 @@
+.create-booking-container {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 16px;
+}
+
+.page-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 24px;
+}
+
+.page-title {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.page-subtitle {
+  margin: 4px 0 0;
+  color: rgba(0, 0, 0, 0.54);
+  font-size: 0.9rem;
+}
+
+.booking-card {
+  padding: 8px;
+}
+
+.booking-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.time-row {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 4px;
+}
+
+.time-label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: rgba(0, 0, 0, 0.6);
+  padding-left: 2px;
+}
+
+.time-selects {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.time-field {
+  flex: 1;
+  max-width: 140px;
+}
+
+.time-colon {
+  font-size: 1.25rem;
+  font-weight: 500;
+  padding-bottom: 18px;
+  color: rgba(0, 0, 0, 0.6);
+}
+
+.error-message {
+  color: var(--mat-form-field-error-text-color, #f44336);
+  font-size: 0.875rem;
+  margin: 4px 0;
+}
+
+.form-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 8px;
+}

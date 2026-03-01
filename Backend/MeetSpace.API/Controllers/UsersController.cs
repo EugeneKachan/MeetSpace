@@ -1,4 +1,5 @@
 using MediatR;
+using MeetSpace.Application.Common;
 using MeetSpace.Application.Features.Users.CreateUser;
 using MeetSpace.Application.Features.Users.GetUsers;
 using MeetSpace.Application.Features.Users.UpdateUser;
@@ -24,10 +25,15 @@ public class UsersController : ControllerBase
     /// Returns the list of all users. Admin only (FR-14).
     /// </summary>
     [HttpGet]
-    [ProducesResponseType(typeof(IReadOnlyList<UserDto>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetAll()
+    [ProducesResponseType(typeof(PagedResult<UserDto>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetAll(
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 10,
+        [FromQuery] string? search = null,
+        [FromQuery] string sortBy = "lastName",
+        [FromQuery] string sortDir = "asc")
     {
-        var result = await _mediator.Send(new GetUsersQuery());
+        var result = await _mediator.Send(new GetUsersQuery(page, pageSize, search, sortBy, sortDir));
         return Ok(result);
     }
 

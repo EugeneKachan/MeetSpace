@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
-import { MatDialogModule, MatDialog } from '@angular/material/dialog';
-import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
+import { MatDialog } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableModule } from '@angular/material/table';
 import { MatSortModule } from '@angular/material/sort';
 import { MatPaginatorModule } from '@angular/material/paginator';
@@ -10,7 +10,7 @@ import { NO_ERRORS_SCHEMA } from '@angular/core';
 
 import { UserManagementComponent } from './user-management.component';
 import { UsersService } from '../../../core/services/users.service';
-import { User } from '../../../models/entities.model';
+import { User, PagedResult } from '../../../models/entities.model';
 
 const MOCK_USERS: User[] = [
   {
@@ -33,6 +33,13 @@ const MOCK_USERS: User[] = [
   }
 ];
 
+const MOCK_PAGED_USERS: PagedResult<User> = {
+  items: MOCK_USERS,
+  totalCount: 2,
+  page: 1,
+  pageSize: 10,
+};
+
 describe('UserManagementComponent', () => {
   let component: UserManagementComponent;
   let fixture: ComponentFixture<UserManagementComponent>;
@@ -46,7 +53,7 @@ describe('UserManagementComponent', () => {
       'createUser',
       'updateUser'
     ]);
-    usersServiceSpy.getUsers.and.returnValue(of(MOCK_USERS));
+    usersServiceSpy.getUsers.and.returnValue(of(MOCK_PAGED_USERS));
 
     dialogSpy = jasmine.createSpyObj<MatDialog>('MatDialog', ['open']);
     snackBarSpy = jasmine.createSpyObj<MatSnackBar>('MatSnackBar', ['open']);
@@ -55,8 +62,6 @@ describe('UserManagementComponent', () => {
       declarations: [UserManagementComponent],
       imports: [
         NoopAnimationsModule,
-        MatDialogModule,
-        MatSnackBarModule,
         MatTableModule,
         MatSortModule,
         MatPaginatorModule
@@ -79,123 +84,173 @@ describe('UserManagementComponent', () => {
   });
 
   // -------------------------------------------------------------------------
-  // loadUsers()
+  // Initial load
   // -------------------------------------------------------------------------
 
-  it('loadUsers() should call usersService.getUsers() on init', () => {
+  it('should call getUsers() on init', () => {
     expect(usersServiceSpy.getUsers).toHaveBeenCalled();
   });
 
-  it('loadUsers() should populate dataSource with returned users', () => {
-    expect(component.dataSource.data).toEqual(MOCK_USERS);
+  it('should populate dataSource.data with result.items', () => {
+    expect(component.dataSource.data).toEqual(MOCK_PAGED_USERS.items);
   });
 
-  it('loadUsers() should set isLoading=false on success', () => {
+  it('should set totalCount from result.totalCount', () => {
+    expect(component.totalCount).toBe(MOCK_PAGED_USERS.totalCount);
+  });
+
+  it('should set isLoading=false after successful load', () => {
     expect(component.isLoading).toBeFalse();
   });
 
-  it('loadUsers() should set loadError and isLoading=false on failure', () => {
+  it('should set loadError and isLoading=false on load failure', () => {
     usersServiceSpy.getUsers.and.returnValue(throwError(() => new Error('Network error')));
 
-    component.loadUsers();
+    (component as any).loadUsers();
 
     expect(component.loadError).toBe('Failed to load users. Please refresh the page.');
     expect(component.isLoading).toBeFalse();
   });
 
-  it('loadUsers() should clear loadError before each request', () => {
+  it('should clear loadError before each request', () => {
     component.loadError = 'Old error';
-    usersServiceSpy.getUsers.and.returnValue(of(MOCK_USERS));
+    usersServiceSpy.getUsers.and.returnValue(of(MOCK_PAGED_USERS));
 
-    component.loadUsers();
+    (component as any).loadUsers();
 
     expect(component.loadError).toBeNull();
   });
 
   // -------------------------------------------------------------------------
-  // applyFilter()
+  // onSearchInput()
   // -------------------------------------------------------------------------
 
-  it('applyFilter() should update dataSource.filter with trimmed lowercase value', () => {
-    const inputEvent = { target: { value: '  Alice  ' } } as unknown as Event;
-    component.applyFilter(inputEvent);
-    expect(component.dataSource.filter).toBe('alice');
+  it('onSearchInput() should not throw', () => {
+    expect(() => {
+      component.onSearchInput({ target: { value: 'alice' } } as unknown as Event);
+    }).not.toThrow();
   });
 
-  it('applyFilter() should clear filter when input is empty', () => {
-    component.dataSource.filter = 'existing';
-    const inputEvent = { target: { value: '' } } as unknown as Event;
-    component.applyFilter(inputEvent);
-    expect(component.dataSource.filter).toBe('');
-  });
+  it('onSearchInput() should debounce and reload after 300ms', fakeAsync(() => {
+    usersServiceSpy.getUsers.calls.reset();
+
+    component.onSearchInput({ target: { value: 'alice' } } as unknown as Event);
+    tick(299);
+    expect(usersServiceSpy.getUsers).not.toHaveBeenCalled();
+
+    tick(1);
+    expect(usersServiceSpy.getUsers).toHaveBeenCalled();
+  }));
+
+  it('onSearchInput() should coalesce rapid keystrokes into a single reload', fakeAsync(() => {
+    usersServiceSpy.getUsers.calls.reset();
+
+    component.onSearchInput({ target: { value: 'a' } } as unknown as Event);
+    tick(100);
+    component.onSearchInput({ target: { value: 'al' } } as unknown as Event);
+    tick(100);
+    component.onSearchInput({ target: { value: 'ali' } } as unknown as Event);
+    tick(300);
+
+    expect(usersServiceSpy.getUsers).toHaveBeenCalledTimes(1);
+  }));
 
   // -------------------------------------------------------------------------
   // openCreateUserDialog()
   // -------------------------------------------------------------------------
 
-  it('openCreateUserDialog() should open dialog and prepend new user to dataSource', fakeAsync(() => {
-    const newUser: User = {
-      id: 'u3',
-      firstName: 'Carol',
-      lastName: 'White',
-      email: 'carol@example.com',
-      role: 'OfficeManager',
-      isActive: true,
-      createdAt: '2024-03-01T00:00:00Z'
-    };
+  it('openCreateUserDialog() should open the dialog', () => {
+    const fakeRef = jasmine.createSpyObj('MatDialogRef', ['afterClosed']);
+    fakeRef.afterClosed.and.returnValue(of(undefined));
+    dialogSpy.open.and.returnValue(fakeRef);
 
-    const dialogRefSpy = jasmine.createSpyObj('MatDialogRef', ['afterClosed']);
-    dialogRefSpy.afterClosed.and.returnValue(of(newUser));
-    dialogSpy.open.and.returnValue(dialogRefSpy);
+    component.openCreateUserDialog();
+
+    expect(dialogSpy.open).toHaveBeenCalled();
+  });
+
+  it('openCreateUserDialog() should reload and show snackbar when user is created', fakeAsync(() => {
+    const newUser: User = {
+      id: 'u3', firstName: 'Carol', lastName: 'White',
+      email: 'carol@example.com', role: 'OfficeManager', isActive: true, createdAt: '2024-03-01T00:00:00Z'
+    };
+    const fakeRef = jasmine.createSpyObj('MatDialogRef', ['afterClosed']);
+    fakeRef.afterClosed.and.returnValue(of(newUser));
+    dialogSpy.open.and.returnValue(fakeRef);
+    usersServiceSpy.getUsers.calls.reset();
 
     component.openCreateUserDialog();
     tick();
 
-    expect(component.dataSource.data[0]).toEqual(newUser);
-    expect(component.dataSource.data.length).toBe(MOCK_USERS.length + 1);
+    expect(usersServiceSpy.getUsers).toHaveBeenCalled();
+    expect(snackBarSpy.open).toHaveBeenCalledWith(
+      `User ${newUser.firstName} ${newUser.lastName} created successfully.`,
+      'Dismiss',
+      jasmine.any(Object)
+    );
   }));
 
-  it('openCreateUserDialog() should NOT modify dataSource when dialog is cancelled', fakeAsync(() => {
-    const dialogRefSpy = jasmine.createSpyObj('MatDialogRef', ['afterClosed']);
-    dialogRefSpy.afterClosed.and.returnValue(of(undefined));
-    dialogSpy.open.and.returnValue(dialogRefSpy);
+  it('openCreateUserDialog() should NOT reload when dialog is cancelled', fakeAsync(() => {
+    const fakeRef = jasmine.createSpyObj('MatDialogRef', ['afterClosed']);
+    fakeRef.afterClosed.and.returnValue(of(undefined));
+    dialogSpy.open.and.returnValue(fakeRef);
+    usersServiceSpy.getUsers.calls.reset();
 
     component.openCreateUserDialog();
     tick();
 
-    expect(component.dataSource.data.length).toBe(MOCK_USERS.length);
+    expect(usersServiceSpy.getUsers).not.toHaveBeenCalled();
   }));
 
   // -------------------------------------------------------------------------
   // openEditUserDialog()
   // -------------------------------------------------------------------------
 
-  it('openEditUserDialog() should patch user in-place in dataSource', fakeAsync(() => {
+  it('openEditUserDialog() should open the dialog with the user as data', () => {
+    const fakeRef = jasmine.createSpyObj('MatDialogRef', ['afterClosed']);
+    fakeRef.afterClosed.and.returnValue(of(undefined));
+    dialogSpy.open.and.returnValue(fakeRef);
+
+    component.openEditUserDialog(MOCK_USERS[0]);
+
+    expect(dialogSpy.open).toHaveBeenCalled();
+    const callArgs = dialogSpy.open.calls.mostRecent().args;
+    expect(callArgs[1]?.data).toEqual(MOCK_USERS[0]);
+  });
+
+  it('openEditUserDialog() should reload and show snackbar when user is updated', fakeAsync(() => {
     const updatedUser: User = { ...MOCK_USERS[0], firstName: 'AliceUpdated' };
-
-    const dialogRefSpy = jasmine.createSpyObj('MatDialogRef', ['afterClosed']);
-    dialogRefSpy.afterClosed.and.returnValue(of(updatedUser));
-    dialogSpy.open.and.returnValue(dialogRefSpy);
-
-    component.openEditUserDialog(MOCK_USERS[0]);
-    tick();
-
-    const updated = component.dataSource.data.find(u => u.id === 'u1');
-    expect(updated?.firstName).toBe('AliceUpdated');
-  }));
-
-  it('openEditUserDialog() should NOT modify data when dialog cancelled', fakeAsync(() => {
-    const originalData = [...component.dataSource.data];
-
-    const dialogRefSpy = jasmine.createSpyObj('MatDialogRef', ['afterClosed']);
-    dialogRefSpy.afterClosed.and.returnValue(of(undefined));
-    dialogSpy.open.and.returnValue(dialogRefSpy);
+    const fakeRef = jasmine.createSpyObj('MatDialogRef', ['afterClosed']);
+    fakeRef.afterClosed.and.returnValue(of(updatedUser));
+    dialogSpy.open.and.returnValue(fakeRef);
+    usersServiceSpy.getUsers.calls.reset();
 
     component.openEditUserDialog(MOCK_USERS[0]);
     tick();
 
-    expect(component.dataSource.data).toEqual(originalData);
+    expect(usersServiceSpy.getUsers).toHaveBeenCalled();
+    expect(snackBarSpy.open).toHaveBeenCalledWith(
+      `User ${updatedUser.firstName} ${updatedUser.lastName} updated successfully.`,
+      'Dismiss',
+      jasmine.any(Object)
+    );
   }));
+
+  it('openEditUserDialog() should NOT reload when dialog is cancelled', fakeAsync(() => {
+    const fakeRef = jasmine.createSpyObj('MatDialogRef', ['afterClosed']);
+    fakeRef.afterClosed.and.returnValue(of(undefined));
+    dialogSpy.open.and.returnValue(fakeRef);
+    usersServiceSpy.getUsers.calls.reset();
+
+    component.openEditUserDialog(MOCK_USERS[0]);
+    tick();
+
+    expect(usersServiceSpy.getUsers).not.toHaveBeenCalled();
+  }));
+
+  // -------------------------------------------------------------------------
+  // displayedColumns
+  // -------------------------------------------------------------------------
 
   it('displayedColumns should include the expected column names', () => {
     expect(component.displayedColumns).toContain('fullName');

@@ -1,9 +1,11 @@
 using MediatR;
 using MeetSpace.API.Authorization;
+using MeetSpace.Application.Common;
 using MeetSpace.Application.Features.Offices;
 using MeetSpace.Application.Features.Offices.AssignManager;
 using MeetSpace.Application.Features.Offices.CreateOffice;
 using MeetSpace.Application.Features.Offices.DeactivateOffice;
+using MeetSpace.Application.Features.Offices.GetActiveOffices;
 using MeetSpace.Application.Features.Offices.GetOffices;
 using MeetSpace.Application.Features.Offices.RemoveManager;
 using MeetSpace.Application.Features.Offices.UpdateOffice;
@@ -25,19 +27,36 @@ public class OfficesController : ControllerBase
     public OfficesController(IMediator mediator) => _mediator = mediator;
 
     /// <summary>
+    /// Returns all active offices for booking discovery. All authenticated users (FR-9).
+    /// </summary>
+    [HttpGet("active")]
+    [ProducesResponseType(typeof(IReadOnlyList<ActiveOfficeDto>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetActive(CancellationToken ct)
+    {
+        var result = await _mediator.Send(new GetActiveOfficesQuery(), ct);
+        return Ok(result);
+    }
+
+    /// <summary>
     /// Returns offices with their rooms and assigned managers.
     /// Admin → all offices. OfficeManager → only their assigned offices (FR-9).
     /// </summary>
     [HttpGet]
     [Authorize(Policy = Policies.ManagerOrAbove)]
-    [ProducesResponseType(typeof(IReadOnlyList<OfficeDto>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetAll(CancellationToken ct)
+    [ProducesResponseType(typeof(PagedResult<OfficeDto>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetAll(
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 10,
+        [FromQuery] string? search = null,
+        [FromQuery] string sortBy = "name",
+        [FromQuery] string sortDir = "asc",
+        CancellationToken ct = default)
     {
         string? filterUserId = User.IsInRole(UserRoles.OfficeManager)
             ? User.FindFirstValue(Claims.Subject)
             : null;
 
-        var result = await _mediator.Send(new GetOfficesQuery(filterUserId), ct);
+        var result = await _mediator.Send(new GetOfficesQuery(filterUserId, page, pageSize, search, sortBy, sortDir), ct);
         return Ok(result);
     }
 

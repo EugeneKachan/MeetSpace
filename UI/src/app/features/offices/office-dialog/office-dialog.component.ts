@@ -15,6 +15,7 @@ import {
   UpdateOfficeRequest,
   UpdateRoomRequest,
   User,
+  PagedResult,
 } from '../../../models/entities.model';
 
 export interface OfficeDialogData {
@@ -98,10 +99,10 @@ export class OfficeDialogComponent implements OnInit {
   // ─── Available managers ─────────────────────────────────────────────────────
 
   private loadAvailableManagers(): void {
-    this.usersService.getUsers().subscribe({
-      next: (users: User[]): void => {
+    this.usersService.getUsers(1, 1000).subscribe({
+      next: (result: PagedResult<User>): void => {
         const assignedIds = new Set(this.managers.map((m) => m.id));
-        this.availableManagers = users.filter(
+        this.availableManagers = result.items.filter(
           (u) => u.role === 'OfficeManager' && u.isActive && !assignedIds.has(u.id),
         );
       },

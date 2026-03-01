@@ -30,6 +30,11 @@ const routes: Routes = [
     data: { roles: ['Admin', 'OfficeManager'] }
   },
   {
+    path: 'book',
+    loadChildren: () => import('./features/booking/booking.module').then(m => m.BookingModule),
+    canActivate: [authGuard]
+  },
+  {
     path: 'unauthorized',
     loadComponent: () =>
       import('./shared/components/unauthorized/unauthorized.component').then(

@@ -16,7 +16,7 @@ export class MyBookingComponent implements OnInit {
   public cancellingId: string | null = null;
   public confirmCancelId: string | null = null;
 
-  constructor(private readonly bookingService: BookingService) {}
+  public constructor(private readonly bookingService: BookingService) {}
 
   public ngOnInit(): void {
     this.loadBookings();

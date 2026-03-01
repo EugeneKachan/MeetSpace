@@ -1,4 +1,4 @@
-# Task 016 - Booking Conflict Rule
+## Task 016 - Booking Conflict Rule
 
 **Feature:** Booking Management (All Roles)
 
@@ -6,7 +6,7 @@
 
 Booking creation must be rejected if:
 
-```
+```text
 (NewStart < ExistingEnd) AND (NewEnd > ExistingStart)
 ```
 

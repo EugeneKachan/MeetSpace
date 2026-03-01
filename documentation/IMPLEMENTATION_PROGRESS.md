@@ -1,6 +1,6 @@
-# MeetSpace - Implementation Progress Tracker
+## MeetSpace - Implementation Progress Tracker
 
-**Last Updated**: February 27, 2026  
+**Last Updated**: February 27, 2026 (Office manager assignment — backend + frontend complete)  
 **Project Status**: In Progress
 
 ---
@@ -9,9 +9,9 @@
 
 | Component | Completed | Total | Percentage |
 |-----------|-----------|-------|-----------|
-| Backend   | 5/18      | 18    | 27.8%     |
-| Frontend  | 5/18      | 18    | 27.8%     |
-| **Total** | **10/36** | **36** | **27.8%** |
+| Backend   | 12/18     | 18    | 66.7%     |
+| Frontend  | 8/18      | 18    | 44.4%     |
+| **Total** | **20/36** | **36** | **55.6%** |
 
 ---
 
@@ -27,17 +27,19 @@
 ### User Management (Admin Only)
 - [x] **Task 003** - Create User (Add new user with email, password, role)
 - [x] **Task 004** - Update User (Modify user details)
-- [ ] **Task 005** - Deactivate User (Soft delete via IsActive flag)
+- [x] **Task 005** - Deactivate User (Soft delete via IsActive flag)
 
 ### Office Management (Admin Only)
-- [ ] **Task 007** - Create Office (Add office with name and address)
-- [ ] **Task 008** - Update Office (Modify office details)
-- [ ] **Task 009** - Deactivate Office (Soft delete via IsActive flag)
+- [x] **Task 007** - Create Office (Add office with name and address)
+- [x] **Task 008** - Update Office (Modify office details)
+- [x] **Task 009** - Deactivate Office (Soft delete via IsActive flag)
+  - Enhanced: Office manager assignment (`POST /offices/{id}/managers`, `DELETE /offices/{id}/managers/{userId}`)
+  - `OfficeAssignment` join table with composite PK; OfficeManagers only see their assigned offices
 
 ### Room Management (Manager and Admin)
-- [ ] **Task 010** - Create Room (Add room with capacity, description)
-- [ ] **Task 011** - Update Room (Modify room details)
-- [ ] **Task 012** - Deactivate Room (Soft delete via IsActive flag)
+- [x] **Task 010** - Create Room (Add room with capacity, description)
+- [x] **Task 011** - Update Room (Modify room details)
+- [x] **Task 012** - Deactivate Room (Soft delete via IsActive flag)
 
 ### Booking Management (All Roles)
 - [ ] **Task 013** - View Offices (List active offices)
@@ -69,7 +71,7 @@
 ## 🎨 Frontend Implementation Status
 
 ### Infrastructure & Setup
-- [x] **Task 000** - Initialize Project (Angular scaffold, routing, Material setup)
+- [x] **Task 000** - Initialize Project (Angular scaffold, routing, Material setup, collapsible sidenav)
 
 ### Authentication & Authorization
 - [x] **Task 001** - Login Page (Email/password form, authentication UI)
@@ -78,10 +80,12 @@
 ### User Management (Admin Only)
 - [x] **Task 003** - Create User Page (User creation form in modal)
 - [x] **Task 004** - Update User Page (User edit form in modal)
-- [ ] **Task 005** - Deactivate User Page (User list with deactivate action)
+- [x] **Task 005** - Deactivate User Page (User list with deactivate action)
 
 ### Office Management (Admin Only)
-- [ ] **Task 006** - Offices Page (List offices, edit/add/remove via modal with rooms management)
+- [x] **Task 006** - Offices Page (List offices, edit/add/remove via modal with rooms management)
+  - Enhanced: Office manager assignment (Admin can assign/remove OfficeManager users per office)
+  - OfficeManagers see only their assigned offices; read-only office details, manage rooms only
 
 ### Room Management (Manager and Admin)
 - [ ] **Task 007** - Create Room Page (Room creation form)
@@ -89,16 +93,20 @@
 - [ ] **Task 009** - Deactivate Room Page (Room list with deactivate action)
 
 ### Booking Management (All Roles)
-- [ ] **Task 010** - View Offices Page (Display offices to select from)
-- [ ] **Task 011** - View Rooms Page (Display rooms with filters)
-- [ ] **Task 012** - Booking Page (List offices in table)
-- [ ] **Task 013** - View Rooms Page (List rooms in table)
-- [ ] **Task 014** - Create Booking Form (Booking creation with conflict checking)
-- [ ] **Task 015** - Booking Conflict Handling (Display error on conflict)
-- [ ] **Task 016** - Cancel Booking UI (Cancel button and confirmation)
+- [x] **Task 010** - My Booking Page (Default after login, replaces Dashboard)
+- [ ] **Task 011** - Booking Page (List offices in table)
+- [ ] **Task 012** - View Rooms Page (List rooms in table)
+- [ ] **Task 013** - Create Booking Form (Booking creation with conflict checking)
+- [ ] **Task 014** - Booking Conflict Handling (Display error on conflict)
+- [ ] **Task 015** - Cancel Booking UI (Cancel button and confirmation)
 
 ### Implementation Notes
 - Angular Material components for consistent UI
+- Collapsible left sidenav with role-based menu items
+- My Booking page is default for all users after login
+- Offices menu item removed; all management is via Manage Offices page
+- Offices page: role-based UI — Admins can create/deactivate offices and assign managers; OfficeManagers see only assigned offices and manage rooms (read-only office details)
+- Angular 17 new block control flow (`@if`/`@for`) used throughout feature templates
 - Reactive forms for validation
 - HttpClient with AuthInterceptor for JWT handling
 - RxJS Observables for state management
@@ -126,7 +134,7 @@
 
 ## 📋 Task Dependencies
 
-```
+```text
 Task 000 (Project Init)
 │
 ├─ Task 001-002 (Auth Backend) → Task 006-017 (Admin/Manager Endpoints)
@@ -176,10 +184,11 @@ Task 000 (Project Init)
 ### Frontend
 - ✅ Angular project structure
 - ✅ Material theming setup
-- ✅ Routing configured
+- ✅ Routing configured (My Booking page as default, dashboard module renamed)
 - ✅ Auth service created
 - ✅ JWT interceptor implemented
 - ✅ Auth guard configured
+- ✅ Collapsible sidenav with role-based menu
 - ✅ Global styles and layout
 
 ---

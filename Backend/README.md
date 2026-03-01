@@ -1,4 +1,4 @@
-# MeetSpace - Backend Setup Instructions
+## MeetSpace - Backend Setup Instructions
 
 ## Overview
 The backend is structured using a layered architecture with the following projects:

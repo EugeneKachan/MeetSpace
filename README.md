@@ -1,8 +1,8 @@
-# Solution Structure
+## Solution Structure
 
 ## Project Layout
 
-```
+```text
 MeetSpace/
 ├── Backend/
 │   ├── MeetSpace.API/           # ASP.NET Core Web API entry point

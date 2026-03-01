@@ -3,11 +3,11 @@ import { AuthService } from '../../core/services/auth.service';
 import { User } from '../../models/auth.model';
 
 @Component({
-  selector: 'app-dashboard',
-  templateUrl: './dashboard.component.html',
-  styleUrls: ['./dashboard.component.scss']
+  selector: 'app-my-booking',
+  templateUrl: './my-booking.component.html',
+  styleUrls: ['./my-booking.component.scss']
 })
-export class DashboardComponent implements OnInit {
+export class MyBookingComponent implements OnInit {
   public user: User | null = null;
 
   private readonly roleColor: Record<string, string> = {

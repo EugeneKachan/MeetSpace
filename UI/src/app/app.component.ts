@@ -10,14 +10,19 @@ import { User } from './models/auth.model';
 })
 export class AppComponent implements OnInit {
   public currentUser$!: Observable<User | null>;
+  public sidenavCollapsed: boolean = false;
 
   constructor(private authService: AuthService) {}
 
-  ngOnInit(): void {
+  public ngOnInit(): void {
     this.currentUser$ = this.authService.currentUser$;
   }
 
-  logout(): void {
+  toggleSidenav(): void {
+    this.sidenavCollapsed = !this.sidenavCollapsed;
+  }
+
+  public logout(): void {
     this.authService.logout();
   }
 }

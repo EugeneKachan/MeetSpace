@@ -30,6 +30,15 @@ export interface Office {
   name: string;
   address: string;
   isActive: boolean;
+  rooms: Room[];
+  managers: ManagerSummary[];
+}
+
+export interface ManagerSummary {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
 }
 
 export interface Room {
@@ -38,6 +47,41 @@ export interface Room {
   capacity: number;
   description: string;
   officeId: string;
+  isActive: boolean;
+}
+
+export interface CreateOfficeRequest {
+  name: string;
+  address: string;
+  isActive: boolean;
+  rooms: CreateRoomForOfficeRequest[];
+}
+
+export interface UpdateOfficeRequest {
+  id: string;
+  name: string;
+  address: string;
+  isActive: boolean;
+}
+
+export interface CreateRoomRequest {
+  officeId: string;
+  name: string;
+  capacity: number;
+  description: string;
+}
+
+export interface CreateRoomForOfficeRequest {
+  name: string;
+  capacity: number;
+  description: string;
+}
+
+export interface UpdateRoomRequest {
+  id: string;
+  name: string;
+  capacity: number;
+  description: string;
   isActive: boolean;
 }
 

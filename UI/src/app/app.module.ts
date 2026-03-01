@@ -7,6 +7,9 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDividerModule } from '@angular/material/divider';
+import { MatSidenavModule } from '@angular/material/sidenav';
+import { MatListModule } from '@angular/material/list';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { JwtModule } from '@auth0/angular-jwt';
 
 import { AppRoutingModule } from './app-routing.module';
@@ -31,6 +34,9 @@ export function tokenGetter() {
     MatMenuModule,
     MatIconModule,
     MatDividerModule,
+    MatSidenavModule,
+    MatListModule,
+    MatTooltipModule,
     JwtModule.forRoot({
       config: {
         tokenGetter,

@@ -58,13 +58,13 @@ describe('LoginComponent', () => {
   // Redirect when already authenticated
   // -------------------------------------------------------------------------
 
-  it('ngOnInit() should navigate to /dashboard when already authenticated', fakeAsync(() => {
+  it('ngOnInit() should navigate to /my-bookings when already authenticated', fakeAsync(() => {
     authServiceSpy.isAuthenticated.and.returnValue(true);
     const navigateSpy = spyOn(router, 'navigate');
 
     component.ngOnInit();
 
-    expect(navigateSpy).toHaveBeenCalledWith(['/dashboard']);
+    expect(navigateSpy).toHaveBeenCalledWith(['/my-bookings']);
   }));
 
   // -------------------------------------------------------------------------
@@ -139,7 +139,7 @@ describe('LoginComponent', () => {
     expect(component.isLoading).toBeTrue();
   });
 
-  it('onSubmit() should navigate to /dashboard on success', fakeAsync(() => {
+  it('onSubmit() should navigate to /my-bookings on success', fakeAsync(() => {
     authServiceSpy.login.and.returnValue(of(mockTokenResponse));
     const navigateSpy = spyOn(router, 'navigate');
 
@@ -148,7 +148,7 @@ describe('LoginComponent', () => {
     component.onSubmit();
     tick();
 
-    expect(navigateSpy).toHaveBeenCalledWith(['/dashboard']);
+    expect(navigateSpy).toHaveBeenCalledWith(['/my-bookings']);
   }));
 
   it('onSubmit() should set errorMessage and clear isLoading on error', fakeAsync(() => {

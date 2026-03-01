@@ -1,4 +1,4 @@
-# MeetSpace - Software Requirements Specification (SRS)
+## MeetSpace - Software Requirements Specification (SRS)
 
 ## MVP Version 1.0
 

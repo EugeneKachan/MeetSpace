@@ -5,18 +5,18 @@ import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatChipsModule } from '@angular/material/chips';
 
-import { DashboardRoutingModule } from './dashboard-routing.module';
-import { DashboardComponent } from './dashboard.component';
+import { MyBookingRoutingModule } from './my-booking-routing.module';
+import { MyBookingComponent } from './my-booking.component';
 
 @NgModule({
-  declarations: [DashboardComponent],
+  declarations: [MyBookingComponent],
   imports: [
     CommonModule,
     RouterModule,
-    DashboardRoutingModule,
+    MyBookingRoutingModule,
     MatCardModule,
     MatIconModule,
     MatChipsModule
   ]
 })
-export class DashboardModule {}
+export class MyBookingModule {}

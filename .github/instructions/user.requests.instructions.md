@@ -3,7 +3,7 @@ description: Instructions for maintaining USER_REQUESTS.md
 applyTo: 'documentation/USER_REQUESTS.md'
 ---
 
-# User Requests Log Instructions
+## User Requests Log Instructions
 
 This document provides guidance for updating `USER_REQUESTS.md`, which records every request the user makes to the AI assistant during development.
 

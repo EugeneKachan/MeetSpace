@@ -22,7 +22,7 @@ export class LoginComponent implements OnInit {
 
   ngOnInit(): void {
     if (this.authService.isAuthenticated()) {
-      this.router.navigate(['/dashboard']);
+      this.router.navigate(['/my-bookings']);
       return;
     }
 
@@ -45,7 +45,7 @@ export class LoginComponent implements OnInit {
 
     this.authService.login(email, password).subscribe({
       next: (): void => {
-        this.router.navigate(['/dashboard']);
+        this.router.navigate(['/my-bookings']);
       },
       error: (err: Error): void => {
         this.errorMessage = err.message;

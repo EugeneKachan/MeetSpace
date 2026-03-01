@@ -1,0 +1,235 @@
+﻿<h2 mat-dialog-title>
+  <mat-icon>{{ isEditMode ? 'edit' : 'add_business' }}</mat-icon>
+  {{ isEditMode ? (isAdminMode ? 'Edit Office' : 'Manage Rooms') : 'New Office' }}
+</h2>
+
+<mat-dialog-content class="dialog-content">
+
+  <!-- Office details -->
+  <section class="section">
+    <h3 class="section-title">Office Details</h3>
+
+    <form [formGroup]="officeForm" id="officeForm">
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Name</mat-label>
+        <input matInput formControlName="name" placeholder="e.g. London HQ" maxlength="200" />
+        <mat-hint align="end" [style.display]="isAdminMode ? null : 'none'">{{ officeForm.get('name')!.value?.length ?? 0 }}/200</mat-hint>
+        <mat-error>{{ officeForm.get('name')!.hasError('required') ? 'Name is required' : 'Max 200 characters' }}</mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Address</mat-label>
+        <input matInput formControlName="address" placeholder="e.g. 10 Downing St, London" maxlength="500" />
+        <mat-hint align="end" [style.display]="isAdminMode ? null : 'none'">{{ officeForm.get('address')!.value?.length ?? 0 }}/500</mat-hint>
+        <mat-error>{{ officeForm.get('address')!.hasError('required') ? 'Address is required' : 'Max 500 characters' }}</mat-error>
+      </mat-form-field>
+
+      @if (isAdminMode) {
+        <mat-slide-toggle formControlName="isActive" color="primary">Active</mat-slide-toggle>
+      }
+
+    </form>
+
+    @if (errorMessage) {
+      <mat-error class="form-error">
+        <mat-icon>error_outline</mat-icon> {{ errorMessage }}
+      </mat-error>
+    }
+  </section>
+
+  <mat-divider></mat-divider>
+
+  <!-- Assigned Managers section - Admin only -->
+  @if (isAdminMode && isEditMode) {
+    <section class="section">
+      <div class="section-header">
+        <h3 class="section-title">Assigned Managers</h3>
+      </div>
+
+      <div class="assign-manager-row">
+        <mat-form-field appearance="outline" class="flex-grow">
+          <mat-label>Add Office Manager</mat-label>
+          <mat-select [(value)]="selectedManagerId" [disabled]="availableManagers.length === 0">
+            @for (u of availableManagers; track u.id) {
+              <mat-option [value]="u.id">
+                {{ u.firstName }} {{ u.lastName }} &ndash; {{ u.email }}
+              </mat-option>
+            }
+          </mat-select>
+          <mat-hint [style.display]="availableManagers.length === 0 ? null : 'none'">No available managers</mat-hint>
+        </mat-form-field>
+        <button mat-raised-button color="primary" type="button"
+                [disabled]="!selectedManagerId"
+                (click)="assignManager()">
+          <mat-icon>person_add</mat-icon>
+          Assign
+        </button>
+      </div>
+
+      @if (managers.length > 0) {
+        <div class="rooms-table-container">
+          <table mat-table [dataSource]="managers" class="rooms-table">
+
+            <ng-container matColumnDef="name">
+              <th mat-header-cell *matHeaderCellDef>Name</th>
+              <td mat-cell *matCellDef="let m">{{ m.firstName }} {{ m.lastName }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="email">
+              <th mat-header-cell *matHeaderCellDef>Email</th>
+              <td mat-cell *matCellDef="let m">{{ m.email }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="actions">
+              <th mat-header-cell *matHeaderCellDef></th>
+              <td mat-cell *matCellDef="let m">
+                <button mat-icon-button matTooltip="Remove manager" color="warn"
+                        (click)="removeManager(m)">
+                  <mat-icon>person_remove</mat-icon>
+                </button>
+              </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="managerColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: managerColumns;"></tr>
+          </table>
+        </div>
+      }
+
+      @if (managers.length === 0) {
+        <p class="no-rooms-hint">No managers assigned yet.</p>
+      }
+    </section>
+
+    <mat-divider></mat-divider>
+  }
+
+  <!-- Rooms section -->
+  <section class="section rooms-section">
+    <div class="section-header">
+      <h3 class="section-title">Rooms</h3>
+      <button mat-stroked-button color="primary" type="button"
+              [disabled]="roomFormVisible"
+              (click)="showAddRoomForm()">
+        <mat-icon>meeting_room</mat-icon>
+        Add Room
+      </button>
+    </div>
+
+    @if (rooms.length > 0) {
+      <div class="rooms-table-container">
+        <table mat-table [dataSource]="rooms" class="rooms-table">
+
+          <ng-container matColumnDef="name">
+            <th mat-header-cell *matHeaderCellDef>Name</th>
+            <td mat-cell *matCellDef="let room">{{ room.name }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="capacity">
+            <th mat-header-cell *matHeaderCellDef>Capacity</th>
+            <td mat-cell *matCellDef="let room">{{ room.capacity }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="description">
+            <th mat-header-cell *matHeaderCellDef>Description</th>
+            <td mat-cell *matCellDef="let room" class="description-cell">{{ room.description }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="status">
+            <th mat-header-cell *matHeaderCellDef>Status</th>
+            <td mat-cell *matCellDef="let room">
+              <span [class]="getRoomStatusClass(room)">{{ getRoomStatusText(room) }}</span>
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="actions">
+            <th mat-header-cell *matHeaderCellDef></th>
+            <td mat-cell *matCellDef="let room; let i = index">
+              <button mat-icon-button matTooltip="Edit room" color="primary"
+                      [hidden]="!isRoom(room) || roomFormVisible"
+                      (click)="onEditRoomClick(room)">
+                <mat-icon>edit</mat-icon>
+              </button>
+              <button mat-icon-button matTooltip="Deactivate room" color="warn"
+                      [hidden]="!isRoom(room) || !$any(room).isActive"
+                      (click)="onDeactivateRoomClick(room)">
+                <mat-icon>block</mat-icon>
+              </button>
+              <button mat-icon-button matTooltip="Remove" color="warn"
+                      [hidden]="isRoom(room)"
+                      (click)="removePendingRoom(i)">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="roomColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: roomColumns;"></tr>
+        </table>
+      </div>
+    }
+
+    @if (rooms.length === 0 && !roomFormVisible) {
+      <p class="no-rooms-hint">No rooms yet. Add rooms to this office.</p>
+    }
+
+    @if (roomFormVisible) {
+      <div class="room-form-panel mat-elevation-z1">
+        <h4 class="room-form-title">{{ editingRoomId ? 'Edit Room' : 'Add Room' }}</h4>
+        <form [formGroup]="roomForm" class="room-form">
+          <div class="room-form-row">
+            <mat-form-field appearance="outline" class="flex-2">
+              <mat-label>Room Name</mat-label>
+              <input matInput formControlName="name" placeholder="e.g. Conference Room A" maxlength="200" />
+              <mat-error>Room name is required</mat-error>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="flex-1">
+              <mat-label>Capacity</mat-label>
+              <input matInput type="number" formControlName="capacity" min="1" max="500" />
+              <mat-error>{{ roomForm.get('capacity')!.hasError('required') ? 'Required' : 'Min 1' }}</mat-error>
+            </mat-form-field>
+          </div>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Description</mat-label>
+            <textarea matInput formControlName="description" rows="2"
+                      placeholder="Optional room description" maxlength="1000"></textarea>
+          </mat-form-field>
+
+          @if (editingRoomId) {
+            <mat-slide-toggle formControlName="isActive" color="primary">Active</mat-slide-toggle>
+          }
+
+          <div class="room-form-actions">
+            <button mat-button type="button" (click)="cancelRoomForm()">Cancel</button>
+            <button mat-raised-button color="primary" type="button"
+                    [disabled]="roomForm.invalid || roomForm.disabled"
+                    (click)="onSaveRoom()">
+              {{ editingRoomId ? 'Update Room' : 'Add Room' }}
+            </button>
+          </div>
+        </form>
+      </div>
+    }
+
+  </section>
+
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button type="button" (click)="onCancel()">
+    {{ isEditMode ? 'Close' : 'Cancel' }}
+  </button>
+  @if (isAdminMode) {
+    <button mat-raised-button color="primary" type="button"
+            [disabled]="officeForm.invalid || isSubmitting"
+            (click)="onSaveOffice()">
+      @if (isSubmitting) {
+        <mat-spinner diameter="18"></mat-spinner>
+      }
+      {{ isEditMode ? 'Save Office' : 'Create Office' }}
+    </button>
+  }
+</mat-dialog-actions>

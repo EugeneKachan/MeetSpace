@@ -1,4 +1,4 @@
-# Task 002 - Authorization
+## Task 002 - Authorization
 
 **Feature:** Authentication / Authorization
 

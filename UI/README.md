@@ -1,4 +1,4 @@
-# MeetSpace - Frontend Setup Instructions
+## MeetSpace - Frontend Setup Instructions
 
 ## Overview
 The frontend is built using Angular 17 with Angular Material for UI components.
@@ -52,7 +52,7 @@ ng test
 ```
 
 ## Project Structure
-```
+```text
 UI/
 ├── src/
 │   ├── app/

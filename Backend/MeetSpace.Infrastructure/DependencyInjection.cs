@@ -1,5 +1,7 @@
+using MeetSpace.Application.Interfaces;
 using MeetSpace.Domain.Entities;
 using MeetSpace.Infrastructure.Data;
+using MeetSpace.Infrastructure.Repositories;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -29,6 +31,9 @@ public static class DependencyInjection
         })
         .AddRoles<IdentityRole>()
         .AddEntityFrameworkStores<AppDbContext>();
+
+        services.AddScoped<IOfficeRepository, OfficeRepository>();
+        services.AddScoped<IRoomRepository, RoomRepository>();
 
         return services;
     }

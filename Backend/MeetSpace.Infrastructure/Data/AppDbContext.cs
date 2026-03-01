@@ -10,6 +10,10 @@ public class AppDbContext : IdentityDbContext<ApplicationUser>
     {
     }
 
+    public DbSet<Office> Offices => Set<Office>();
+    public DbSet<Room> Rooms => Set<Room>();
+    public DbSet<OfficeAssignment> OfficeAssignments => Set<OfficeAssignment>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
@@ -18,6 +22,37 @@ public class AppDbContext : IdentityDbContext<ApplicationUser>
         {
             entity.Property(e => e.FirstName).IsRequired().HasMaxLength(100);
             entity.Property(e => e.LastName).IsRequired().HasMaxLength(100);
+        });
+
+        modelBuilder.Entity<Office>(entity =>
+        {
+            entity.HasKey(o => o.Id);
+            entity.Property(o => o.Name).IsRequired().HasMaxLength(200);
+            entity.Property(o => o.Address).IsRequired().HasMaxLength(500);
+        });
+
+        modelBuilder.Entity<Room>(entity =>
+        {
+            entity.HasKey(r => r.Id);
+            entity.Property(r => r.Name).IsRequired().HasMaxLength(200);
+            entity.Property(r => r.Description).HasMaxLength(1000);
+            entity.HasOne(r => r.Office)
+                  .WithMany(o => o.Rooms)
+                  .HasForeignKey(r => r.OfficeId)
+                  .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<OfficeAssignment>(entity =>
+        {
+            entity.HasKey(a => new { a.OfficeId, a.UserId });
+            entity.HasOne(a => a.Office)
+                  .WithMany(o => o.Assignments)
+                  .HasForeignKey(a => a.OfficeId)
+                  .OnDelete(DeleteBehavior.Cascade);
+            entity.HasOne(a => a.User)
+                  .WithMany()
+                  .HasForeignKey(a => a.UserId)
+                  .OnDelete(DeleteBehavior.Cascade);
         });
     }
 }

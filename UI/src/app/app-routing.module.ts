@@ -5,7 +5,7 @@ import { authGuard } from './core/guards/auth.guard';
 const routes: Routes = [
   {
     path: '',
-    redirectTo: '/dashboard',
+    redirectTo: '/my-bookings',
     pathMatch: 'full'
   },
   {
@@ -13,8 +13,8 @@ const routes: Routes = [
     loadChildren: () => import('./features/auth/auth.module').then(m => m.AuthModule)
   },
   {
-    path: 'dashboard',
-    loadChildren: () => import('./features/dashboard/dashboard.module').then(m => m.DashboardModule),
+    path: 'my-bookings',
+    loadChildren: () => import('./features/my-booking/my-booking.module').then(m => m.MyBookingModule),
     canActivate: [authGuard]
   },
   {
@@ -22,6 +22,12 @@ const routes: Routes = [
     loadChildren: () => import('./features/users/users.module').then(m => m.UsersModule),
     canActivate: [authGuard],
     data: { roles: ['Admin'] }
+  },
+  {
+    path: 'offices',
+    loadChildren: () => import('./features/offices/offices.module').then(m => m.OfficesModule),
+    canActivate: [authGuard],
+    data: { roles: ['Admin', 'OfficeManager'] }
   },
   {
     path: 'unauthorized',
@@ -32,7 +38,7 @@ const routes: Routes = [
   },
   {
     path: '**',
-    redirectTo: '/dashboard'
+    redirectTo: '/my-bookings'
   }
 ];
 

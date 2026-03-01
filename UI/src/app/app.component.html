@@ -1,15 +1,14 @@
 <mat-toolbar color="primary" class="app-toolbar">
-  <a routerLink="/dashboard" class="brand">MeetSpace</a>
+  @if (currentUser$ | async) {
+    <button mat-icon-button (click)="toggleSidenav()" aria-label="Toggle navigation">
+      <mat-icon>{{ sidenavCollapsed ? 'menu_open' : 'menu' }}</mat-icon>
+    </button>
+  }
+  <a routerLink="/my-bookings" class="brand">MeetSpace</a>
 
   <span class="toolbar-spacer"></span>
 
   @if (currentUser$ | async; as user) {
-    <nav class="nav-links">
-      <a mat-button routerLink="/dashboard" routerLinkActive="active-link">
-        <mat-icon>dashboard</mat-icon> Dashboard
-      </a>
-    </nav>
-
     <button mat-icon-button [matMenuTriggerFor]="userMenu"
             [attr.aria-label]="'User menu for ' + user.name">
       <mat-icon>account_circle</mat-icon>
@@ -30,6 +29,51 @@
   }
 </mat-toolbar>
 
-<main class="app-main">
-  <router-outlet></router-outlet>
-</main>
+<mat-sidenav-container class="app-sidenav-container">
+
+  @if (currentUser$ | async; as user) {
+    <mat-sidenav mode="side" opened class="app-sidenav" [class.collapsed]="sidenavCollapsed">
+      <mat-nav-list>
+
+        <a mat-list-item routerLink="/my-bookings" routerLinkActive="active-link"
+           [matTooltip]="sidenavCollapsed ? 'My Bookings' : ''" matTooltipPosition="right">
+          <mat-icon matListItemIcon>event_note</mat-icon>
+          @if (!sidenavCollapsed) {
+            <span matListItemTitle>My Bookings</span>
+          }
+        </a>
+
+        @if (user.role === 'Admin' || user.role === 'OfficeManager') {
+          <mat-divider></mat-divider>
+          @if (!sidenavCollapsed) {
+            <h3 matSubheader class="nav-subheader">Management</h3>
+          }
+
+          <a mat-list-item routerLink="/offices" routerLinkActive="active-link"
+             [matTooltip]="sidenavCollapsed ? 'Manage Offices' : ''" matTooltipPosition="right">
+            <mat-icon matListItemIcon>domain_add</mat-icon>
+            @if (!sidenavCollapsed) {
+              <span matListItemTitle>Manage Offices</span>
+            }
+          </a>
+        }
+
+        @if (user.role === 'Admin') {
+          <a mat-list-item routerLink="/users" routerLinkActive="active-link"
+             [matTooltip]="sidenavCollapsed ? 'Users' : ''" matTooltipPosition="right">
+            <mat-icon matListItemIcon>people</mat-icon>
+            @if (!sidenavCollapsed) {
+              <span matListItemTitle>Users</span>
+            }
+          </a>
+        }
+
+      </mat-nav-list>
+    </mat-sidenav>
+  }
+
+  <mat-sidenav-content class="app-main">
+    <router-outlet></router-outlet>
+  </mat-sidenav-content>
+
+</mat-sidenav-container>

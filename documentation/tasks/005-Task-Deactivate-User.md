@@ -1,4 +1,4 @@
-# Task 005 - Deactivate User
+## Task 005 - Deactivate User
 
 **Feature:** User Management (Admin Only)
 

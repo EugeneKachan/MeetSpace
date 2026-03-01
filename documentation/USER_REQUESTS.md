@@ -1,9 +1,136 @@
-# MeetSpace - User Requests History
+## MeetSpace - User Requests History
 
 **Maintained**: February 27, 2026  
 **Project**: MeetSpace - Meeting Room Booking System
 
 This document preserves a chronological record of all user requests made during the development process.
+
+---
+
+## Session: February 27, 2026 (Backend Tests + Markdown Linting)
+
+### Request 2: Add .NET tests for new functionality
+**Time**: February 27, 2026
+**Request**: "Add .net tests for new functional"
+
+**Outcome**:
+- Created 6 Application-layer test files covering all new office feature handlers.
+- Created 1 API-layer test file covering all `OfficesController` actions.
+- Total 27 new .NET tests; all pass (Application exit 0, API 12/12).
+
+**Tests added**:
+
+| File | Tests | Coverage |
+|------|-------|----------|
+| `CreateOfficeCommandHandlerTests.cs` | 3 | Adds office; maps rooms; returned ID matches |
+| `UpdateOfficeCommandHandlerTests.cs` | 2 | Not found → exception; success updates fields |
+| `DeactivateOfficeCommandHandlerTests.cs` | 2 | Not found → exception; sets IsActive=false |
+| `GetOfficesQueryHandlerTests.cs` | 5 | No filter; user filter; DTO mapping; rooms; empty |
+| `AssignManagerCommandHandlerTests.cs` | 5 | Office/user not found; wrong role; duplicate; success |
+| `RemoveManagerCommandHandlerTests.cs` | 2 | Not found → exception; success removes assignment |
+| `OfficesControllerTests.cs` | 8 | GetAll (Admin+Manager); Create; Update (mismatch+success); Deactivate; Assign/Remove manager |
+
+**Files Created**:
+- Backend/Test/MeetSpace.Application.Tests/CreateOfficeCommandHandlerTests.cs
+- Backend/Test/MeetSpace.Application.Tests/UpdateOfficeCommandHandlerTests.cs
+- Backend/Test/MeetSpace.Application.Tests/DeactivateOfficeCommandHandlerTests.cs
+- Backend/Test/MeetSpace.Application.Tests/GetOfficesQueryHandlerTests.cs
+- Backend/Test/MeetSpace.Application.Tests/AssignManagerCommandHandlerTests.cs
+- Backend/Test/MeetSpace.Application.Tests/RemoveManagerCommandHandlerTests.cs
+- Backend/Test/MeetSpace.API.Tests/OfficesControllerTests.cs
+
+### Request 1: Update .md files according to markdown instructions
+**Time**: February 27, 2026
+**Request**: "Update .md files according to new .md files instruction"
+
+**Outcome**:
+- Converted all H1 (`#`) headings to H2 (`##`) across 28 files — complies with `markdown.instructions.md` rule (no H1 headings, `##` is top-level).
+- Added language specifiers to all bare ` ``` ` code blocks (used `text`, `bash`, `typescript`, `markdown` where appropriate).
+
+**Files Modified** (H1 → H2):
+- README.md, Backend/README.md, UI/README.md
+- documentation/USER_REQUESTS.md, documentation/IMPLEMENTATION_PROGRESS.md, documentation/MeetSpace_MVP_SRS.md
+- documentation/tasks/000 through 017 (all 18 task files)
+- .github/prompts/front-end-task-implementation.prompt.md
+- .github/instructions/typescript.instructions.md, .github/instructions/user.requests.instructions.md
+
+**Files Modified** (unlabelled code blocks):
+- README.md, UI/README.md, documentation/IMPLEMENTATION_PROGRESS.md
+- documentation/tasks/016-Task-Booking-Conflict-Rule.md
+- .github/prompts/front-end-task-implementation.prompt.md, .github/prompts/back-end-task-implementation.prompt.md
+
+---
+
+## Session: February 27, 2026 (Office Manager Assignment)
+
+### Request 2: Fix Angular build errors after office manager feature
+**Time**: February 27, 2026
+**Request**: *(implicit — build failures discovered after implementing Request 1 below)*
+
+**Outcome**:
+- Root cause: Angular 17.0.0 Ivy compiler generated duplicate JavaScript function names when structural directives (`*ngIf` / `@if`) appeared on identical element types inside `*matCellDef` sub-templates at the same global slot index.
+- Fixed `office-dialog.component.html`: replaced all `@if` blocks inside `*matCellDef` cells with `[hidden]` bindings; collapsed dual `<mat-error *ngIf>` pairs into single `<mat-error>` with ternary message; replaced `<mat-hint *ngIf>` with `[style.display]` binding.
+- Fixed `offices-page.component.html`: replaced `*ngIf="isAdmin"` on the deactivate button (inside `*matCellDef`) with `[hidden]="!isAdmin"`; replaced remaining conditional `*ngIf` in table cells with `[hidden]`.
+- Added helper methods to `OfficeDialogComponent`: `getRoomStatusText()`, `getRoomStatusClass()`, `onEditRoomClick()`, `onDeactivateRoomClick()` — eliminates type-guard expressions from the template.
+- Build result: clean, offices bundle **118.86 kB**, no errors.
+
+**Files Modified**:
+- UI/src/app/features/offices/office-dialog/office-dialog.component.html
+- UI/src/app/features/offices/office-dialog/office-dialog.component.ts (helper methods added)
+- UI/src/app/features/offices/offices-page/offices-page.component.html
+
+### Request 1: Assign office managers to offices; OfficeManagers see only their offices and can manage rooms, not offices
+**Time**: February 27, 2026
+**Request**: "There should be possibility to assign office managers to the offices. Office managers should have possibility to see assigned to them offices and manage the rooms, but not offices"
+
+**Outcome**:
+- **Backend**:
+  - New `OfficeAssignment` join entity (`OfficeId` + `UserId` composite PK, cascade deletes both sides).
+  - `Office` entity updated with `ICollection<OfficeAssignment> Assignments` navigation property.
+  - `AppDbContext` updated: `DbSet<OfficeAssignment>`, composite PK model config.
+  - `OfficeDtos`: new `ManagerDto` record; `OfficeDto` extended with `IReadOnlyList<ManagerDto> Managers`.
+  - `GetOfficesQuery` extended with optional `FilterByUserId` parameter; handler applies filter when set and maps assignments to `ManagerDto`.
+  - `IOfficeRepository` / `OfficeRepository`: added `GetByAssignedUserAsync`, `AssignmentExistsAsync`, `AddAssignmentAsync`, `RemoveAssignmentAsync`; all queries eager-load managers via `ThenInclude(a => a.User)`.
+  - New CQRS commands: `AssignManagerCommand` + handler (validates OfficeManager role, no duplicates), `RemoveManagerCommand` + handler.
+  - `OfficesController` rewritten: per-endpoint authorization (`AdminOnly` / `ManagerOrAbove`); GET filters by current user when role is `OfficeManager`; new `POST /{id}/managers` and `DELETE /{id}/managers/{userId}` endpoints.
+  - EF Core migration `AddOfficeAssignments` created and applied.
+- **Frontend**:
+  - `entities.model.ts`: `ManagerSummary` interface added; `Office.managers: ManagerSummary[]` field added.
+  - `offices.service.ts`: `assignManager()` and `removeManager()` methods added.
+  - `offices.module.ts`: `MatSelectModule` added.
+  - `offices-page.component.ts`: `isAdmin` role check; `managers` column in `displayedColumns`; role-aware subtitle and empty-state text.
+  - `offices-page.component.html`: role-based Add Office button; Managers column; role-conditional action buttons.
+  - `offices-page.component.scss`: `.managers-cell`, `.no-managers` styles.
+  - `office-dialog.component.ts`: `isAdminMode` flag; office form disabled for OfficeManagers; Assigned Managers table with assign/remove; `UsersService` injected for available manager dropdown.
+  - `office-dialog.component.html`: Admins see editable form + manager assignment section; OfficeManagers see read-only details + rooms only.
+  - `office-dialog.component.scss`: `.assign-manager-row` styles.
+
+**Files Created**:
+- Backend/MeetSpace.Domain/Entities/OfficeAssignment.cs
+- Backend/MeetSpace.Application/Features/Offices/AssignManager/AssignManagerCommand.cs
+- Backend/MeetSpace.Application/Features/Offices/AssignManager/AssignManagerCommandHandler.cs
+- Backend/MeetSpace.Application/Features/Offices/RemoveManager/RemoveManagerCommand.cs
+- Backend/MeetSpace.Application/Features/Offices/RemoveManager/RemoveManagerCommandHandler.cs
+- Backend/MeetSpace.Infrastructure/Migrations/*_AddOfficeAssignments.cs
+
+**Files Modified**:
+- Backend/MeetSpace.Domain/Entities/Office.cs
+- Backend/MeetSpace.Infrastructure/Data/AppDbContext.cs
+- Backend/MeetSpace.Application/Features/Offices/OfficeDtos.cs
+- Backend/MeetSpace.Application/Features/Offices/GetOffices/GetOfficesQuery.cs
+- Backend/MeetSpace.Application/Features/Offices/GetOffices/GetOfficesQueryHandler.cs
+- Backend/MeetSpace.Application/Interfaces/IOfficeRepository.cs
+- Backend/MeetSpace.Infrastructure/Repositories/OfficeRepository.cs
+- Backend/MeetSpace.API/Controllers/OfficesController.cs
+- UI/src/app/models/entities.model.ts
+- UI/src/app/core/services/offices.service.ts
+- UI/src/app/features/offices/offices.module.ts
+- UI/src/app/features/offices/offices-page/offices-page.component.ts
+- UI/src/app/features/offices/offices-page/offices-page.component.html
+- UI/src/app/features/offices/offices-page/offices-page.component.scss
+- UI/src/app/features/offices/office-dialog/office-dialog.component.ts
+- UI/src/app/features/offices/office-dialog/office-dialog.component.html
+- UI/src/app/features/offices/office-dialog/office-dialog.component.scss
 
 ---
 
@@ -135,7 +262,44 @@ This document preserves a chronological record of all user requests made during 
 
 ---
 
-## Session: February 27, 2026
+## Session: February 27, 2026 (UI Navigation & Layout)
+
+### Request 12: Replace Dashboard with My Booking page, Collapsible Sidenav, Remove Offices Menu
+**Time**: February 27, 2026
+**Request**: "Instead of Dashboard page, add My Booking page - it should be default for all users after login. Also all left sidenav with available for user menu items. These items should be hidden or shown based on user role. Add possibility to collapse sidenav. Remove offices menu item, all management of rooms and offices will be in a one page 'Manage Offices'. Rename dashboard module to my-booking. Update documentation accordingly."
+
+**Outcome**:
+- Dashboard module and route replaced with My Booking module and route (`features/my-booking`)
+- My Booking page is now the default after login for all users
+- Sidenav is collapsible (hamburger toggle), with tooltips in collapsed mode
+- Sidenav menu items are role-aware (Admin, OfficeManager, Employee)
+- Offices menu item removed; all management is via Manage Offices page
+- Documentation updated to reflect new navigation, module renaming, and UI changes
+- All references to dashboard removed from routing, tests, and UI
+- Old dashboard folder deleted
+- Progress tracker and user requests history updated
+
+**Files Created**:
+- UI/src/app/features/my-booking/my-booking.module.ts
+- UI/src/app/features/my-booking/my-booking-routing.module.ts
+- UI/src/app/features/my-booking/my-booking.component.ts
+- UI/src/app/features/my-booking/my-booking.component.html
+- UI/src/app/features/my-booking/my-booking.component.scss
+
+**Files Deleted**:
+- UI/src/app/features/dashboard/*
+
+**Files Modified**:
+- UI/src/app/app-routing.module.ts (route/module renaming)
+- UI/src/app/app.component.html (sidenav, menu, toggle)
+- UI/src/app/app.component.ts (toggle state)
+- UI/src/app/app.component.scss (collapsed styles)
+- UI/src/app/app.module.ts (MatTooltipModule)
+- UI/src/app/features/auth/login/login.component.ts (redirect)
+- UI/src/app/features/auth/login/login.component.spec.ts (test updates)
+- UI/src/app/shared/components/unauthorized/unauthorized.component.html (button update)
+- documentation/IMPLEMENTATION_PROGRESS.md (progress, notes, module renaming)
+- documentation/USER_REQUESTS.md (this file)
 
 ### Request 3: Fix hardcoded admin password in DbSeeder
 **Time**: February 27, 2026

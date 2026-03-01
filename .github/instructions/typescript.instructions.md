@@ -3,7 +3,7 @@ description: TypeScript coding standards — access modifiers, types, return typ
 applyTo: "UI/src/app/**/*.ts"
 ---
 
-# TypeScript Coding Standards
+## TypeScript Coding Standards
 
 These rules apply to all TypeScript files in the Angular project.
 

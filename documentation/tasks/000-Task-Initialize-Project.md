@@ -1,4 +1,4 @@
-# Task 000 - Initialize Project
+## Task 000 - Initialize Project
 
 **Feature:** Project Setup / Infrastructure
 

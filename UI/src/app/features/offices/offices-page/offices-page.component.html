@@ -1,0 +1,124 @@
+﻿<div class="offices-container">
+  <div class="page-header">
+    <div>
+      <h1>Manage Offices</h1>
+      <p class="subtitle">{{ isAdmin ? 'Manage offices and their rooms' : 'Manage rooms in your assigned offices' }}</p>
+    </div>
+    @if (isAdmin) {
+      <button mat-raised-button color="primary" (click)="openCreateOfficeDialog()">
+        <mat-icon>add_business</mat-icon>
+        Add Office
+      </button>
+    }
+  </div>
+
+  <!-- Search bar -->
+  <mat-form-field appearance="outline" class="search-field">
+    <mat-label>Search offices</mat-label>
+    <input matInput (keyup)="applyFilter($event)" placeholder="Name, address..." />
+    <mat-icon matSuffix>search</mat-icon>
+  </mat-form-field>
+
+  <!-- Loading / error states -->
+  @if (isLoading) {
+    <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+  }
+
+  @if (loadError) {
+    <mat-card class="error-card">
+      <mat-card-content>
+        <mat-icon color="warn">error_outline</mat-icon>
+        {{ loadError }}
+      </mat-card-content>
+    </mat-card>
+  }
+
+  <!-- Offices table -->
+  <div class="table-container mat-elevation-z2" [class.hidden]="isLoading || !!loadError">
+    <table mat-table [dataSource]="dataSource" matSort>
+
+      <!-- Name column -->
+      <ng-container matColumnDef="name">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Name</th>
+        <td mat-cell *matCellDef="let office">
+          <div class="office-name-cell">
+            <mat-icon class="office-icon">business</mat-icon>
+            <span>{{ office.name }}</span>
+          </div>
+        </td>
+      </ng-container>
+
+      <!-- Address column -->
+      <ng-container matColumnDef="address">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Address</th>
+        <td mat-cell *matCellDef="let office">{{ office.address }}</td>
+      </ng-container>
+
+      <!-- Room count column -->
+      <ng-container matColumnDef="roomCount">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Rooms</th>
+        <td mat-cell *matCellDef="let office">
+          <span class="room-count-badge">{{ office.rooms?.length ?? 0 }}</span>
+        </td>
+      </ng-container>
+
+      <!-- Managers column -->
+      <ng-container matColumnDef="managers">
+        <th mat-header-cell *matHeaderCellDef>Managers</th>
+        <td mat-cell *matCellDef="let office">
+          <span class="managers-cell" [hidden]="!office.managers?.length">
+            @for (m of office.managers; track m.id; let last = $last) {
+              {{ m.firstName }} {{ m.lastName }}@if (!last) {, }
+            }
+          </span>
+          <span class="no-managers" [hidden]="office.managers?.length > 0">&mdash;</span>
+        </td>
+      </ng-container>
+
+      <!-- Status column -->
+      <ng-container matColumnDef="status">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Status</th>
+        <td mat-cell *matCellDef="let office">
+          <span class="status-badge" [class.active]="office.isActive" [class.inactive]="!office.isActive">
+            {{ office.isActive ? 'Active' : 'Inactive' }}
+          </span>
+        </td>
+      </ng-container>
+
+      <!-- Actions column -->
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef></th>
+        <td mat-cell *matCellDef="let office" class="actions-cell">
+          <button mat-icon-button
+                  [matTooltip]="isAdmin ? 'Edit office & rooms' : 'Manage rooms'"
+                  color="primary"
+                  (click)="openEditOfficeDialog(office)">
+            <mat-icon>{{ isAdmin ? 'edit' : 'meeting_room' }}</mat-icon>
+          </button>
+          <button mat-icon-button
+                  matTooltip="Deactivate office"
+                  color="warn"
+                  [hidden]="!isAdmin"
+                  [disabled]="!office.isActive"
+                  (click)="deactivateOffice(office)">
+            <mat-icon>block</mat-icon>
+          </button>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+
+      <!-- Empty state -->
+      <tr class="mat-row" *matNoDataRow>
+        <td class="mat-cell no-data-cell" [attr.colspan]="displayedColumns.length">
+          <mat-icon>business</mat-icon>
+          <span [hidden]="dataSource.filter">{{ isAdmin ? 'No offices found. Add one to get started.' : 'No offices assigned to you yet.' }}</span>
+          <span [hidden]="!dataSource.filter">No offices match "{{ dataSource.filter }}"</span>
+        </td>
+      </tr>
+    </table>
+
+    <mat-paginator [pageSizeOptions]="[10, 25, 50]" showFirstLastButtons></mat-paginator>
+  </div>
+</div>

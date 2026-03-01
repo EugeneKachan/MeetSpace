@@ -25,7 +25,7 @@ public class AssignManagerCommandHandler : IRequestHandler<AssignManagerCommand>
             ?? throw new KeyNotFoundException($"User {request.UserId} not found.");
 
         var roles = await _userManager.GetRolesAsync(user);
-        if (!roles.Contains("OfficeManager"))
+        if (!roles.Contains(UserRoles.OfficeManager))
             throw new InvalidOperationException("Only users with the OfficeManager role can be assigned to offices.");
 
         var alreadyAssigned = await _officeRepo.AssignmentExistsAsync(office.Id, user.Id, ct);

@@ -2,9 +2,10 @@ using MediatR;
 
 namespace MeetSpace.Application.Features.Offices.UpdateOffice;
 
-/// <summary>Updates an existing office's name and address (FR-4).</summary>
+/// <summary>Updates an existing office's name, address, and status (FR-4).</summary>
 public record UpdateOfficeCommand(
     Guid Id,
     string Name,
-    string Address
+    string Address,
+    bool IsActive
 ) : IRequest;

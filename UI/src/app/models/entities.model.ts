@@ -95,3 +95,56 @@ export interface Booking {
   createdAt: Date;
   isCancelled: boolean;
 }
+
+/** DTO returned by GET /api/bookings */
+export interface BookingListItem {
+  id: string;
+  roomId: string;
+  roomName: string;
+  officeName: string;
+  date: string;       // YYYY-MM-DD
+  startTime: string;  // HH:mm
+  endTime: string;    // HH:mm
+  title: string;
+  isCancelled: boolean;
+}
+
+export interface CreateBookingRequest {
+  officeId: string;
+  roomId: string;
+  date: string;       // YYYY-MM-DD
+  startTime: string;  // HH:mm:ss
+  endTime: string;    // HH:mm:ss
+  title: string;
+}
+
+/** Lightweight office returned by GET /api/offices/active (FR-9). */
+export interface ActiveOffice {
+  id: string;
+  name: string;
+  address: string;
+}
+
+/** Room returned by GET /api/rooms (FR-10). */
+export interface RoomListItem {
+  id: string;
+  name: string;
+  capacity: number;
+  description: string;
+}
+
+export interface RoomFilter {
+  officeId: string;
+  minCapacity?: number | null;
+  date?: string | null;       // ISO date string YYYY-MM-DD
+  startTime?: string | null;  // HH:mm
+  endTime?: string | null;    // HH:mm
+}
+
+/** Generic server-side paged response. */
+export interface PagedResult<T> {
+  items: T[];
+  totalCount: number;
+  page: number;
+  pageSize: number;
+}

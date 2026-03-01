@@ -6,12 +6,14 @@ namespace MeetSpace.Application.Features.Offices.CreateOffice;
 public record CreateRoomRequest(
     string Name,
     int Capacity,
-    string Description
+    string Description,
+    bool IsActive
 );
 
 /// <summary>Creates a new office, optionally with initial rooms (FR-3).</summary>
 public record CreateOfficeCommand(
     string Name,
     string Address,
+    bool IsActive,
     List<CreateRoomRequest> Rooms
 ) : IRequest<Guid>;

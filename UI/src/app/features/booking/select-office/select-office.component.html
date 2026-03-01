@@ -1,0 +1,44 @@
+<div class="select-office-container">
+  <h2 class="page-title">Select an Office</h2>
+  <p class="page-subtitle">Choose a location to browse available meeting rooms.</p>
+
+  @if (isLoading) {
+    <mat-progress-bar mode="indeterminate" aria-label="Loading offices"></mat-progress-bar>
+  }
+
+  @if (errorMessage) {
+    <p class="error-message" role="alert">{{ errorMessage }}</p>
+  }
+
+  @if (!isLoading && !errorMessage) {
+    @if (offices.length === 0) {
+      <mat-card class="empty-state">
+        <mat-card-content>
+          <mat-icon class="empty-icon">domain_disabled</mat-icon>
+          <p>No active offices available at the moment.</p>
+        </mat-card-content>
+      </mat-card>
+    } @else {
+      <div class="office-grid">
+        @for (office of offices; track office.id) {
+          <mat-card class="office-card" (click)="selectOffice(office)" role="button"
+                    tabindex="0" (keyup.enter)="selectOffice(office)"
+                    [attr.aria-label]="'Select office ' + office.name">
+            <mat-card-header>
+              <mat-icon matCardAvatar>business</mat-icon>
+              <mat-card-title>{{ office.name }}</mat-card-title>
+              <mat-card-subtitle>{{ office.address }}</mat-card-subtitle>
+            </mat-card-header>
+            <mat-card-actions align="end">
+              <button mat-mini-fab color="primary"
+                      (click)="$event.stopPropagation(); selectOffice(office)"
+                      matTooltip="View Rooms">
+                <mat-icon>arrow_forward</mat-icon>
+              </button>
+            </mat-card-actions>
+          </mat-card>
+        }
+      </div>
+    }
+  }
+</div>

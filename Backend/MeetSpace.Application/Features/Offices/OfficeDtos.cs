@@ -1,5 +1,8 @@
 namespace MeetSpace.Application.Features.Offices;
 
+/// <summary>Lightweight office summary returned in GET /api/offices/active (FR-9).</summary>
+public record ActiveOfficeDto(Guid Id, string Name, string Address);
+
 /// <summary>Returned in GET /api/offices responses.</summary>
 public record RoomDto(
     Guid Id,

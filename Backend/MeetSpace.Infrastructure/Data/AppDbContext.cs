@@ -13,6 +13,7 @@ public class AppDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<Office> Offices => Set<Office>();
     public DbSet<Room> Rooms => Set<Room>();
     public DbSet<OfficeAssignment> OfficeAssignments => Set<OfficeAssignment>();
+    public DbSet<Booking> Bookings => Set<Booking>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -52,6 +53,19 @@ public class AppDbContext : IdentityDbContext<ApplicationUser>
             entity.HasOne(a => a.User)
                   .WithMany()
                   .HasForeignKey(a => a.UserId)
+                  .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<Booking>(entity =>
+        {
+            entity.HasKey(b => b.Id);
+            entity.Property(b => b.Title).HasMaxLength(200);
+            entity.Property(b => b.CreatedAt).IsRequired();
+            entity.HasIndex(b => new { b.RoomId, b.StartTime, b.EndTime })
+                  .HasDatabaseName("IX_Bookings_Room_Start_End");
+            entity.HasOne(b => b.Room)
+                  .WithMany()
+                  .HasForeignKey(b => b.RoomId)
                   .OnDelete(DeleteBehavior.Cascade);
         });
     }

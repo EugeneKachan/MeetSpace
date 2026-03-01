@@ -2,7 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { UsersService } from './users.service';
 import { environment } from '../../../environments/environment';
-import { User, CreateUserRequest, UpdateUserRequest } from '../../models/entities.model';
+import { User, PagedResult, CreateUserRequest, UpdateUserRequest } from '../../models/entities.model';
 
 const API_URL = `${environment.apiUrl}/api/users`;
 
@@ -14,6 +14,13 @@ const MOCK_USER: User = {
   role: 'Employee',
   isActive: true,
   createdAt: '2024-01-01T00:00:00Z'
+};
+
+const MOCK_PAGED_USERS: PagedResult<User> = {
+  items: [MOCK_USER],
+  totalCount: 1,
+  page: 1,
+  pageSize: 10,
 };
 
 describe('UsersService', () => {
@@ -41,26 +48,42 @@ describe('UsersService', () => {
   // getUsers()
   // -------------------------------------------------------------------------
 
-  it('getUsers() should send GET to /api/users and return users', () => {
-    const users: User[] = [MOCK_USER];
-
+  it('getUsers() should send GET to /api/users with default query params', () => {
     service.getUsers().subscribe((result) => {
-      expect(result.length).toBe(1);
-      expect(result[0]).toEqual(MOCK_USER);
+      expect(result).toEqual(MOCK_PAGED_USERS);
     });
 
-    const req = httpMock.expectOne(API_URL);
-    expect(req.request.method).toBe('GET');
-    req.flush(users);
+    const req = httpMock.expectOne(r => r.url === API_URL && r.method === 'GET');
+    expect(req.request.params.get('page')).toBe('1');
+    expect(req.request.params.get('pageSize')).toBe('10');
+    expect(req.request.params.get('search')).toBe('');
+    expect(req.request.params.get('sortBy')).toBe('lastName');
+    expect(req.request.params.get('sortDir')).toBe('asc');
+    req.flush(MOCK_PAGED_USERS);
   });
 
-  it('getUsers() should return empty array when server returns []', () => {
+  it('getUsers() should send custom pagination params when provided', () => {
+    service.getUsers(2, 25, 'alice', 'email', 'desc').subscribe();
+
+    const req = httpMock.expectOne(r => r.url === API_URL && r.method === 'GET');
+    expect(req.request.params.get('page')).toBe('2');
+    expect(req.request.params.get('pageSize')).toBe('25');
+    expect(req.request.params.get('search')).toBe('alice');
+    expect(req.request.params.get('sortBy')).toBe('email');
+    expect(req.request.params.get('sortDir')).toBe('desc');
+    req.flush({ items: [], totalCount: 0, page: 2, pageSize: 25 });
+  });
+
+  it('getUsers() should return empty items list when server returns zero results', () => {
+    const empty: PagedResult<User> = { items: [], totalCount: 0, page: 1, pageSize: 10 };
+
     service.getUsers().subscribe((result) => {
-      expect(result).toEqual([]);
+      expect(result.items).toEqual([]);
+      expect(result.totalCount).toBe(0);
     });
 
-    const req = httpMock.expectOne(API_URL);
-    req.flush([]);
+    const req = httpMock.expectOne(r => r.url === API_URL && r.method === 'GET');
+    req.flush(empty);
   });
 
   // -------------------------------------------------------------------------

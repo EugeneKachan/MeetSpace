@@ -14,6 +14,18 @@ public class RoomRepository : IRoomRepository
     public async Task<Room?> GetByIdAsync(Guid id, CancellationToken ct = default) =>
         await _db.Rooms.FirstOrDefaultAsync(r => r.Id == id, ct);
 
+    public async Task<IReadOnlyList<Room>> GetActiveByOfficeAsync(
+        Guid officeId, int? minCapacity, CancellationToken ct = default)
+    {
+        var query = _db.Rooms
+            .Where(r => r.OfficeId == officeId && r.IsActive);
+
+        if (minCapacity.HasValue)
+            query = query.Where(r => r.Capacity >= minCapacity.Value);
+
+        return await query.OrderBy(r => r.Name).ToListAsync(ct);
+    }
+
     public async Task AddAsync(Room room, CancellationToken ct = default)
     {
         await _db.Rooms.AddAsync(room, ct);

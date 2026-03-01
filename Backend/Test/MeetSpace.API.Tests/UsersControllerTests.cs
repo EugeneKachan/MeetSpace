@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
 using MeetSpace.API.Controllers;
+using MeetSpace.Application.Common;
 using MeetSpace.Application.Features.Users.CreateUser;
 using MeetSpace.Application.Features.Users.GetUsers;
 using MeetSpace.Application.Features.Users.UpdateUser;
@@ -30,15 +31,16 @@ namespace MeetSpace.API.Tests
             {
                 new UserDto("u1", "Alice", "Smith", "alice@example.com", "Admin", true, DateTime.UtcNow)
             };
+            var paged = new PagedResult<UserDto>(users, 1, 1, 10);
 
             _mediator
                 .Setup(m => m.Send(It.IsAny<GetUsersQuery>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync((IReadOnlyList<UserDto>)users);
+                .ReturnsAsync(paged);
 
             var result = await _controller.GetAll();
 
             var ok = Assert.IsType<OkObjectResult>(result);
-            Assert.Equal(users, ok.Value);
+            Assert.Equal(paged, ok.Value);
         }
 
         [Fact]
@@ -84,6 +86,37 @@ namespace MeetSpace.API.Tests
 
             var ok = Assert.IsType<OkObjectResult>(result);
             Assert.Equal(resp, ok.Value);
+        }
+
+        // ── Pagination param forwarding ───────────────────────────────────────────
+
+        [Fact]
+        public async Task GetAll_ForwardsPaginationParamsToQuery()
+        {
+            var paged = new PagedResult<UserDto>(new List<UserDto>(), 0, 2, 5);
+            _mediator
+                .Setup(m => m.Send(
+                    It.Is<GetUsersQuery>(q =>
+                        q.Page     == 2      &&
+                        q.PageSize == 5      &&
+                        q.Search   == "alice" &&
+                        q.SortBy   == "email" &&
+                        q.SortDir  == "desc"),
+                    It.IsAny<CancellationToken>()))
+                .ReturnsAsync(paged);
+
+            var result = await _controller.GetAll(
+                page: 2, pageSize: 5, search: "alice", sortBy: "email", sortDir: "desc");
+
+            var ok = Assert.IsType<OkObjectResult>(result);
+            Assert.Equal(paged, ok.Value);
+            _mediator.Verify(
+                m => m.Send(
+                    It.Is<GetUsersQuery>(q =>
+                        q.Page == 2 && q.PageSize == 5 &&
+                        q.Search == "alice" && q.SortBy == "email" && q.SortDir == "desc"),
+                    It.IsAny<CancellationToken>()),
+                Times.Once);
         }
     }
 }

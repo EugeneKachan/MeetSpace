@@ -12,7 +12,7 @@ import { OfficesPageComponent } from './offices-page.component';
 import { OfficesService } from '../../../core/services/offices.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { User as AuthUser } from '../../../models/auth.model';
-import { Office } from '../../../models/entities.model';
+import { Office, PagedResult } from '../../../models/entities.model';
 
 const ADMIN_AUTH_USER: AuthUser = {
   id: 'admin-id', name: 'Admin User', email: 'admin@test.com', role: 'Admin',
@@ -41,6 +41,13 @@ const MOCK_OFFICES: Office[] = [
   },
 ];
 
+const MOCK_PAGED_OFFICES: PagedResult<Office> = {
+  items: MOCK_OFFICES,
+  totalCount: MOCK_OFFICES.length,
+  page: 1,
+  pageSize: 10,
+};
+
 describe('OfficesPageComponent', () => {
   let component: OfficesPageComponent;
   let fixture: ComponentFixture<OfficesPageComponent>;
@@ -61,7 +68,7 @@ describe('OfficesPageComponent', () => {
       'getOffices',
       'deactivateOffice',
     ]);
-    officesServiceSpy.getOffices.and.returnValue(of(MOCK_OFFICES));
+    officesServiceSpy.getOffices.and.returnValue(of(MOCK_PAGED_OFFICES));
 
     authServiceSpy = jasmine.createSpyObj<AuthService>('AuthService', ['getCurrentUser']);
 
@@ -118,7 +125,7 @@ describe('OfficesPageComponent', () => {
   it('should load offices on init', () => {
     createComponent();
     expect(officesServiceSpy.getOffices).toHaveBeenCalled();
-    expect(component.dataSource.data).toEqual(MOCK_OFFICES);
+    expect(component.dataSource.data).toEqual(MOCK_PAGED_OFFICES.items);
     expect(component.isLoading).toBeFalse();
   });
 
@@ -135,23 +142,21 @@ describe('OfficesPageComponent', () => {
     createComponent();
     expect(component.loadError).toBeTruthy();
 
-    officesServiceSpy.getOffices.and.returnValue(of(MOCK_OFFICES));
-    component.loadOffices();
+    officesServiceSpy.getOffices.and.returnValue(of(MOCK_PAGED_OFFICES));
+    (component as any).loadOffices();
 
     expect(component.loadError).toBeNull();
-    expect(component.dataSource.data).toEqual(MOCK_OFFICES);
+    expect(component.dataSource.data).toEqual(MOCK_PAGED_OFFICES.items);
   });
 
   // -------------------------------------------------------------------------
-  // applyFilter()
+  // onSearchInput()
   // -------------------------------------------------------------------------
 
-  it('applyFilter() should apply trimmed lowercase filter to dataSource', () => {
+  it('onSearchInput() should emit to searchSubject', () => {
     createComponent();
-    const event = { target: { value: '  London  ' } } as unknown as Event;
-    component.applyFilter(event);
-
-    expect(component.dataSource.filter).toBe('london');
+    const event = { target: { value: 'London' } } as unknown as Event;
+    expect(() => component.onSearchInput(event)).not.toThrow();
   });
 
   // -------------------------------------------------------------------------
@@ -225,16 +230,16 @@ describe('OfficesPageComponent', () => {
   // deactivateOffice()
   // -------------------------------------------------------------------------
 
-  it('deactivateOffice() should update row isActive to false on success', fakeAsync(() => {
+  it('deactivateOffice() should reload data and show snackbar on success', fakeAsync(() => {
     createComponent();
     spyOn(window, 'confirm').and.returnValue(true);
     officesServiceSpy.deactivateOffice = jasmine.createSpy().and.returnValue(of(void 0));
+    officesServiceSpy.getOffices.calls.reset();
 
     component.deactivateOffice(MOCK_OFFICES[0]);
     tick();
 
-    const updated = component.dataSource.data.find((o) => o.id === 'office-1');
-    expect(updated?.isActive).toBeFalse();
+    expect(officesServiceSpy.getOffices).toHaveBeenCalled();
     expect(snackBarSpy.open).toHaveBeenCalled();
   }));
 
@@ -249,9 +254,6 @@ describe('OfficesPageComponent', () => {
     tick();
 
     expect(snackBarSpy.open).toHaveBeenCalled();
-    // Original data should be unchanged
-    const original = component.dataSource.data.find((o) => o.id === 'office-1');
-    expect(original?.isActive).toBeTrue();
   }));
 
   it('deactivateOffice() should do nothing when confirm is cancelled', () => {

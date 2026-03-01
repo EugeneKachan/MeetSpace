@@ -1,9 +1,74 @@
 ## MeetSpace - User Requests History
 
-**Maintained**: February 27, 2026  
+**Maintained**: March 1, 2026  
 **Project**: MeetSpace - Meeting Room Booking System
 
 This document preserves a chronological record of all user requests made during the development process.
+
+---
+
+## Session: March 1, 2026 (Documentation Update)
+
+### Request 2: Implement left UI requirements
+**Time**: March 1, 2026
+**Request**: "Implement left UI requirements"
+
+**Outcome**:
+- Investigated the 88.9% (16/18) frontend progress figure.
+- Confirmed all 18 frontend tasks are fully implemented in code:
+  - Tasks 007 (`openCreateOfficeDialog`), 008 (`openEditOfficeDialog`), 009 (`deactivateOffice`) are all present in `OfficesPageComponent` and `OfficeDialogComponent` — they were implemented as part of Task 006 but never added as separate checklist entries.
+  - Tasks 015 (Create Booking form), 016 (conflict error display), 017 (My Bookings + cancel) are all complete.
+- No code changes required; documentation was the only gap.
+- Updated `IMPLEMENTATION_PROGRESS.md`: added `[x]` entries for Tasks 007/008/009 to the frontend section; corrected progress table to 18/18 (100%) for frontend and 36/36 total.
+
+**Files Modified**:
+- documentation/IMPLEMENTATION_PROGRESS.md
+- documentation/USER_REQUESTS.md
+
+### Request 1: Update documentation
+**Time**: March 1, 2026
+**Request**: "Update documentation"
+
+**Outcome**:
+- Updated `IMPLEMENTATION_PROGRESS.md`: bumped test run dates to March 1, 2026; updated Angular test count from 92 to 170; added 3 new spec files to the spec file list (offices.service, offices-page, office-dialog); added server-side pagination note to frontend implementation notes; cleared stale Pending Implementation items; updated Upcoming Tasks and Release Milestones to reflect full MVP completion; removed stale blockers note.
+- Updated `USER_REQUESTS.md`: bumped Maintained date to March 1, 2026; logged this request.
+
+**Files Modified**:
+- documentation/IMPLEMENTATION_PROGRESS.md
+- documentation/USER_REQUESTS.md
+
+---
+
+## Session: February 28, 2026 (.NET Tests for Pagination and Bookings)
+
+### Request 1: Add .NET tests for new features
+**Time**: February 28, 2026
+**Request**: "Add .Net tests for new features"
+
+**Outcome**:
+- Added 25 new .NET tests covering server-side pagination (search, sort, paging), GetUserBookings query handler, and BookingsController `GetMine` endpoint.
+- All 78 .NET tests pass (Application: 58, API: 20).
+
+**Tests added**:
+
+| File | New Tests | Coverage |
+|------|-----------|----------|
+| `GetUserBookingsQueryHandlerTests.cs` (new) | 6 | DTO mapping; date/time format; empty list; null Room nav prop; cancelled booking; multiple bookings |
+| `BookingsControllerTests.cs` | 2 | `GetMine` returns 200 with list; query contains current user ID |
+| `GetOfficesQueryHandlerTests.cs` | 8 | Search by name; search by address; case-insensitive search; paging slice + TotalCount; TotalCount reflects filtered count; sort by address asc; sort by address desc; default sort by name asc |
+| `GetUsersQueryHandlerTests.cs` | 7 | Search by firstName; search by email; paging + TotalCount; TotalCount reflects filtered count before paging; sort by firstName asc; sort by firstName desc; default sort by lastName+firstName asc |
+| `UsersControllerTests.cs` | 1 | `GetAll` forwards page/pageSize/search/sortBy/sortDir to `GetUsersQuery` |
+| `OfficesControllerTests.cs` | 1 | `GetAll` (Admin) forwards pagination params to `GetOfficesQuery` with null `FilterByUserId` |
+
+**Files Created**:
+- Backend/Test/MeetSpace.Application.Tests/GetUserBookingsQueryHandlerTests.cs
+
+**Files Modified**:
+- Backend/Test/MeetSpace.API.Tests/BookingsControllerTests.cs
+- Backend/Test/MeetSpace.Application.Tests/GetOfficesQueryHandlerTests.cs
+- Backend/Test/MeetSpace.Application.Tests/GetUsersQueryHandlerTests.cs
+- Backend/Test/MeetSpace.API.Tests/UsersControllerTests.cs
+- Backend/Test/MeetSpace.API.Tests/OfficesControllerTests.cs
 
 ---
 

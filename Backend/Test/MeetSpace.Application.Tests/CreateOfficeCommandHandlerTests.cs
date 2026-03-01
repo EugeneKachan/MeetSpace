@@ -21,7 +21,7 @@ namespace MeetSpace.Application.Tests
                 .Returns(Task.CompletedTask);
 
             var handler = new CreateOfficeCommandHandler(_repo.Object);
-            var cmd = new CreateOfficeCommand("HQ", "123 Main St", new List<CreateRoomRequest>());
+            var cmd = new CreateOfficeCommand("HQ", "123 Main St", true, new List<CreateRoomRequest>());
 
             var id = await handler.Handle(cmd, CancellationToken.None);
 
@@ -40,10 +40,10 @@ namespace MeetSpace.Application.Tests
                 .Returns(Task.CompletedTask);
 
             var handler = new CreateOfficeCommandHandler(_repo.Object);
-            var cmd = new CreateOfficeCommand("Branch", "456 Side Ave", new List<CreateRoomRequest>
+            var cmd = new CreateOfficeCommand("Branch", "456 Side Ave", true, new List<CreateRoomRequest>
             {
-                new CreateRoomRequest("Room A", 10, "Small meeting room"),
-                new CreateRoomRequest("Room B", 20, "Large conference room")
+                new CreateRoomRequest("Room A", 10, "Small meeting room", true),
+                new CreateRoomRequest("Room B", 20, "Large conference room", true)
             });
 
             var id = await handler.Handle(cmd, CancellationToken.None);
@@ -63,7 +63,7 @@ namespace MeetSpace.Application.Tests
                 .Returns(Task.CompletedTask);
 
             var handler = new CreateOfficeCommandHandler(_repo.Object);
-            var cmd = new CreateOfficeCommand("Office", "1 Street", new List<CreateRoomRequest>());
+            var cmd = new CreateOfficeCommand("Office", "1 Street", true, new List<CreateRoomRequest>());
 
             var returnedId = await handler.Handle(cmd, CancellationToken.None);
 

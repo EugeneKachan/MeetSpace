@@ -1,5 +1,4 @@
 ﻿<h2 mat-dialog-title>
-  <mat-icon>{{ isEditMode ? 'edit' : 'add_business' }}</mat-icon>
   {{ isEditMode ? (isAdminMode ? 'Edit Office' : 'Manage Rooms') : 'New Office' }}
 </h2>
 
@@ -59,11 +58,11 @@
           </mat-select>
           <mat-hint [style.display]="availableManagers.length === 0 ? null : 'none'">No available managers</mat-hint>
         </mat-form-field>
-        <button mat-raised-button color="primary" type="button"
+        <button mat-mini-fab color="primary" type="button"
                 [disabled]="!selectedManagerId"
-                (click)="assignManager()">
+                (click)="assignManager()"
+                matTooltip="Assign manager">
           <mat-icon>person_add</mat-icon>
-          Assign
         </button>
       </div>
 
@@ -109,11 +108,11 @@
   <section class="section rooms-section">
     <div class="section-header">
       <h3 class="section-title">Rooms</h3>
-      <button mat-stroked-button color="primary" type="button"
+      <button mat-mini-fab color="primary" type="button"
               [disabled]="roomFormVisible"
-              (click)="showAddRoomForm()">
+              (click)="showAddRoomForm()"
+              matTooltip="Add Room">
         <mat-icon>meeting_room</mat-icon>
-        Add Room
       </button>
     </div>
 

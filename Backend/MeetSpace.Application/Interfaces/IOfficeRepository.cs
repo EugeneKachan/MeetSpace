@@ -5,6 +5,7 @@ namespace MeetSpace.Application.Interfaces;
 public interface IOfficeRepository
 {
     Task<IReadOnlyList<Office>> GetAllAsync(CancellationToken ct = default);
+    Task<IReadOnlyList<Office>> GetActiveAsync(CancellationToken ct = default);
     Task<IReadOnlyList<Office>> GetByAssignedUserAsync(string userId, CancellationToken ct = default);
     Task<Office?> GetByIdAsync(Guid id, CancellationToken ct = default);
     Task AddAsync(Office office, CancellationToken ct = default);

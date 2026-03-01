@@ -16,6 +16,7 @@ public class UpdateOfficeCommandHandler : IRequestHandler<UpdateOfficeCommand>
 
         office.Name = command.Name;
         office.Address = command.Address;
+        office.IsActive = command.IsActive;
 
         await _repo.UpdateAsync(office, ct);
     }

@@ -74,6 +74,7 @@ public class AuthController : ControllerBase
 
         identity
             .SetClaim(Claims.Subject, user.Id)
+            .SetClaim(ClaimTypes.NameIdentifier, user.Id)
             .SetClaim(Claims.Email, user.Email)
             .SetClaim(Claims.Name, user.UserName)
             .SetClaim(Claims.GivenName, user.FirstName)
@@ -83,7 +84,7 @@ public class AuthController : ControllerBase
         // Every claim must declare where it is included (access token and/or id token)
         identity.SetDestinations(claim => claim.Type switch
         {
-            Claims.Subject or Claims.Name or Claims.Email
+            Claims.Subject or ClaimTypes.NameIdentifier or Claims.Name or Claims.Email
                 or Claims.GivenName or Claims.FamilyName
                 => [Destinations.AccessToken, Destinations.IdentityToken],
 

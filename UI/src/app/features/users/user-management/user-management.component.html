@@ -4,16 +4,15 @@
       <h1>User Management</h1>
       <p class="subtitle">Manage system users and their access roles</p>
     </div>
-    <button mat-raised-button color="primary" (click)="openCreateUserDialog()">
+    <button mat-mini-fab color="primary" (click)="openCreateUserDialog()" matTooltip="Create User">
       <mat-icon>person_add</mat-icon>
-      Create User
     </button>
   </div>
 
   <!-- Search bar -->
   <mat-form-field appearance="outline" class="search-field">
     <mat-label>Search users</mat-label>
-    <input matInput (keyup)="applyFilter($event)" placeholder="Name, email, role…" />
+    <input matInput (input)="onSearchInput($event)" placeholder="Name, email, role…" />
     <mat-icon matSuffix>search</mat-icon>
   </mat-form-field>
 
@@ -28,8 +27,9 @@
   </mat-card>
 
   <!-- Users table -->
-  <div class="table-container mat-elevation-z2" [class.hidden]="isLoading || !!loadError">
-    <table mat-table [dataSource]="dataSource" matSort>
+  <div class="table-wrapper mat-elevation-z2" [class.hidden]="isLoading || !!loadError">
+    <div class="table-container">
+      <table mat-table [dataSource]="dataSource" matSort>
 
       <!-- Full Name column -->
       <ng-container matColumnDef="fullName">
@@ -101,7 +101,7 @@
         </td>
       </tr>
     </table>
-
-    <mat-paginator [pageSizeOptions]="[10, 25, 50]" showFirstLastButtons></mat-paginator>
+    </div>
+    <mat-paginator [length]="totalCount" [pageSizeOptions]="[10, 25, 50]" showFirstLastButtons></mat-paginator>
   </div>
 </div>

@@ -1,12 +1,14 @@
-import { Component, OnInit, AfterViewInit, ViewChild } from '@angular/core';
+import { Component, OnInit, AfterViewInit, OnDestroy, ViewChild } from '@angular/core';
+import { Subject } from 'rxjs';
+import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableDataSource } from '@angular/material/table';
-import { MatSort } from '@angular/material/sort';
-import { MatPaginator } from '@angular/material/paginator';
+import { MatSort, Sort } from '@angular/material/sort';
+import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { OfficesService } from '../../../core/services/offices.service';
 import { AuthService } from '../../../core/services/auth.service';
-import { Office } from '../../../models/entities.model';
+import { Office, PagedResult } from '../../../models/entities.model';
 import { OfficeDialogComponent, OfficeDialogData } from '../office-dialog/office-dialog.component';
 
 @Component({
@@ -14,47 +16,101 @@ import { OfficeDialogComponent, OfficeDialogData } from '../office-dialog/office
   templateUrl: './offices-page.component.html',
   styleUrls: ['./offices-page.component.scss'],
 })
-export class OfficesPageComponent implements OnInit, AfterViewInit {
+export class OfficesPageComponent implements OnInit, AfterViewInit, OnDestroy {
   public readonly displayedColumns: string[] = ['name', 'address', 'roomCount', 'managers', 'status', 'actions'];
   public readonly dataSource: MatTableDataSource<Office> = new MatTableDataSource<Office>();
   public isLoading: boolean = true;
   public loadError: string | null = null;
+  public totalCount: number = 0;
   public readonly isAdmin: boolean;
+
+  private currentPage: number = 1;
+  private currentPageSize: number = 10;
+  private currentSearch: string = '';
+  private currentSortBy: string = 'name';
+  private currentSortDir: string = 'asc';
+
+  private readonly searchSubject: Subject<string> = new Subject<string>();
+  private readonly destroy$: Subject<void> = new Subject<void>();
 
   @ViewChild(MatSort) private sort!: MatSort;
   @ViewChild(MatPaginator) private paginator!: MatPaginator;
 
-  constructor(
-    private officesService: OfficesService,
-    private authService: AuthService,
-    private dialog: MatDialog,
-    private snackBar: MatSnackBar,
+  public constructor(
+    private readonly officesService: OfficesService,
+    private readonly authService: AuthService,
+    private readonly dialog: MatDialog,
+    private readonly snackBar: MatSnackBar,
   ) {
     this.isAdmin = authService.getCurrentUser()?.role === 'Admin';
   }
 
   public ngOnInit(): void {
+    this.searchSubject.pipe(
+      debounceTime(300),
+      distinctUntilChanged(),
+      takeUntil(this.destroy$)
+    ).subscribe((search: string): void => {
+      this.currentSearch = search;
+      this.currentPage = 1;
+      this.loadOffices();
+    });
+
     this.loadOffices();
   }
 
   public ngAfterViewInit(): void {
-    this.dataSource.sort = this.sort;
-    this.dataSource.paginator = this.paginator;
-    this.dataSource.sortingDataAccessor = (office: Office, column: string): string | number => {
-      switch (column) {
-        case 'roomCount': return office.rooms?.length ?? 0;
-        case 'managers': return office.managers?.length ?? 0;
-        default: return (office as any)[column] ?? '';
-      }
-    };
+    this.paginator.page
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((e: PageEvent): void => {
+        this.currentPage = e.pageIndex + 1;
+        this.currentPageSize = e.pageSize;
+        this.loadOffices();
+      });
+
+    this.sort.sortChange
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((s: Sort): void => {
+        this.currentSortBy = this.mapSortColumn(s.active);
+        this.currentSortDir = s.direction || 'asc';
+        this.currentPage = 1;
+        this.paginator.firstPage();
+        this.loadOffices();
+      });
   }
 
-  public loadOffices(): void {
+  public ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  public onSearchInput(event: Event): void {
+    this.searchSubject.next((event.target as HTMLInputElement).value);
+  }
+
+  private mapSortColumn(column: string): string {
+    const map: Record<string, string> = {
+      name: 'name',
+      address: 'address',
+      roomCount: 'roomCount',
+      status: 'status',
+    };
+    return map[column] ?? 'name';
+  }
+
+  private loadOffices(): void {
     this.isLoading = true;
     this.loadError = null;
-    this.officesService.getOffices().subscribe({
-      next: (offices: Office[]): void => {
-        this.dataSource.data = offices;
+    this.officesService.getOffices(
+      this.currentPage,
+      this.currentPageSize,
+      this.currentSearch,
+      this.currentSortBy,
+      this.currentSortDir
+    ).subscribe({
+      next: (result: PagedResult<Office>): void => {
+        this.dataSource.data = result.items;
+        this.totalCount = result.totalCount;
         this.isLoading = false;
       },
       error: (): void => {
@@ -62,11 +118,6 @@ export class OfficesPageComponent implements OnInit, AfterViewInit {
         this.isLoading = false;
       },
     });
-  }
-
-  public applyFilter(event: Event): void {
-    const filterValue = (event.target as HTMLInputElement).value;
-    this.dataSource.filter = filterValue.trim().toLowerCase();
   }
 
   public openCreateOfficeDialog(): void {
@@ -113,10 +164,7 @@ export class OfficesPageComponent implements OnInit, AfterViewInit {
     }
     this.officesService.deactivateOffice(office.id).subscribe({
       next: (): void => {
-        const data = this.dataSource.data.map((o: Office) =>
-          o.id === office.id ? { ...o, isActive: false } : o,
-        );
-        this.dataSource.data = data;
+        this.loadOffices();
         this.snackBar.open(`Office "${office.name}" deactivated.`, 'Dismiss', {
           duration: 5000,
           panelClass: ['success-snackbar'],

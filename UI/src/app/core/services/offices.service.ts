@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import {
@@ -8,6 +8,7 @@ import {
   UpdateOfficeRequest,
   CreateRoomRequest,
   UpdateRoomRequest,
+  PagedResult,
 } from '../../models/entities.model';
 
 @Injectable({
@@ -19,8 +20,20 @@ export class OfficesService {
 
   constructor(private http: HttpClient) {}
 
-  public getOffices(): Observable<Office[]> {
-    return this.http.get<Office[]>(this.officesUrl);
+  public getOffices(
+    page: number = 1,
+    pageSize: number = 10,
+    search: string = '',
+    sortBy: string = 'name',
+    sortDir: string = 'asc'
+  ): Observable<PagedResult<Office>> {
+    const params = new HttpParams()
+      .set('page', page.toString())
+      .set('pageSize', pageSize.toString())
+      .set('search', search)
+      .set('sortBy', sortBy)
+      .set('sortDir', sortDir);
+    return this.http.get<PagedResult<Office>>(this.officesUrl, { params });
   }
 
   public createOffice(request: CreateOfficeRequest): Observable<string> {

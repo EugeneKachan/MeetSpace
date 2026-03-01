@@ -1,4 +1,5 @@
 using MediatR;
+using MeetSpace.Application.Common;
 
 namespace MeetSpace.Application.Features.Offices.GetOffices;
 
@@ -8,5 +9,10 @@ namespace MeetSpace.Application.Features.Offices.GetOffices;
 /// the given user is assigned to (used for OfficeManager role).
 /// </summary>
 public record GetOfficesQuery(
-    string? FilterByUserId = null
-) : IRequest<IReadOnlyList<OfficeDto>>;
+    string? FilterByUserId = null,
+    int Page = 1,
+    int PageSize = 10,
+    string? Search = null,
+    string SortBy = "name",
+    string SortDir = "asc"
+) : IRequest<PagedResult<OfficeDto>>;

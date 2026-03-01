@@ -7,7 +7,7 @@
 .page-header {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
+  align-items: center;
   margin-bottom: 20px;
 
   h1 {
@@ -20,12 +20,6 @@
     margin: 0;
     color: rgba(0, 0, 0, 0.54);
   }
-
-  button {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-  }
 }
 
 .search-field {
@@ -33,14 +27,18 @@
   margin-bottom: 12px;
 }
 
-.table-container {
+.table-wrapper {
   border-radius: 4px;
-  overflow: auto;
-  max-height: calc(100vh - 280px);
+  overflow: hidden;
 
   &.hidden {
     display: none;
   }
+}
+
+.table-container {
+  overflow: auto;
+  max-height: calc(100vh - 340px);
 }
 
 table {

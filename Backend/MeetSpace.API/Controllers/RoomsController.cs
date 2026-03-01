@@ -1,6 +1,8 @@
 using MediatR;
+using MeetSpace.Application.Features.Rooms;
 using MeetSpace.Application.Features.Rooms.CreateRoom;
 using MeetSpace.Application.Features.Rooms.DeactivateRoom;
+using MeetSpace.Application.Features.Rooms.GetRooms;
 using MeetSpace.Application.Features.Rooms.UpdateRoom;
 using MeetSpace.API.Authorization;
 using Microsoft.AspNetCore.Authorization;
@@ -10,15 +12,35 @@ namespace MeetSpace.API.Controllers;
 
 [ApiController]
 [Route("api/rooms")]
-[Authorize(Policy = Policies.ManagerOrAbove)]
+[Authorize]   // base: authenticated; write actions narrow further
 public class RoomsController : ControllerBase
 {
     private readonly IMediator _mediator;
 
     public RoomsController(IMediator mediator) => _mediator = mediator;
 
+    /// <summary>Returns active rooms for an office with optional filters. All authenticated users (FR-10).</summary>
+    [HttpGet]
+    [ProducesResponseType(typeof(IReadOnlyList<RoomListDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> GetByOffice(
+        [FromQuery] Guid officeId,
+        [FromQuery] int? minCapacity,
+        [FromQuery] DateOnly? date,
+        [FromQuery] TimeOnly? startTime,
+        [FromQuery] TimeOnly? endTime,
+        CancellationToken ct)
+    {
+        if (officeId == Guid.Empty)
+            return BadRequest(new { title = "officeId is required", status = 400 });
+
+        var result = await _mediator.Send(new GetRoomsQuery(officeId, minCapacity, date, startTime, endTime), ct);
+        return Ok(result);
+    }
+
     /// <summary>Adds a new room to an office. Manager or Admin (FR-6).</summary>
     [HttpPost]
+    [Authorize(Policy = Policies.ManagerOrAbove)]
     [ProducesResponseType(typeof(Guid), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -30,6 +52,7 @@ public class RoomsController : ControllerBase
 
     /// <summary>Updates a room. Manager or Admin (FR-7).</summary>
     [HttpPut("{id:guid}")]
+    [Authorize(Policy = Policies.ManagerOrAbove)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -44,6 +67,7 @@ public class RoomsController : ControllerBase
 
     /// <summary>Deactivates a room (soft delete). Manager or Admin (FR-8).</summary>
     [HttpDelete("{id:guid}")]
+    [Authorize(Policy = Policies.ManagerOrAbove)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Deactivate(Guid id, CancellationToken ct)

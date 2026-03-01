@@ -7,7 +7,8 @@
 Booking creation must be rejected if:
 
 ```text
-(NewStart < ExistingEnd) AND (NewEnd > ExistingStart)
+(NewStart < ExistingEnd) AND (NewEnd > ExistingStart).
+This room already booked by user or some one else did it for provided time range.
 ```
 
 Validation occurs:

@@ -49,7 +49,7 @@ public class OfficesController : ControllerBase
     public async Task<IActionResult> Create([FromBody] CreateOfficeCommand command, CancellationToken ct)
     {
         var id = await _mediator.Send(command, ct);
-        return CreatedAtAction(nameof(GetAll), new { id }, id);
+        return Created($"/api/offices/{id}", id);
     }
 
     /// <summary>Updates an office's name, address and status. Admin only (FR-4).</summary>

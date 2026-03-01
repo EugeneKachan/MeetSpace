@@ -17,14 +17,14 @@ public class CreateOfficeCommandHandler : IRequestHandler<CreateOfficeCommand, G
             Id = Guid.NewGuid(),
             Name = command.Name,
             Address = command.Address,
-            IsActive = true,
+            IsActive = command.IsActive,
             Rooms = command.Rooms.Select(r => new Room
             {
                 Id = Guid.NewGuid(),
                 Name = r.Name,
                 Capacity = r.Capacity,
                 Description = r.Description,
-                IsActive = true
+                IsActive = r.IsActive
             }).ToList()
         };
 

@@ -18,7 +18,7 @@ export class AppComponent implements OnInit {
     this.currentUser$ = this.authService.currentUser$;
   }
 
-  toggleSidenav(): void {
+  public toggleSidenav(): void {
     this.sidenavCollapsed = !this.sidenavCollapsed;
   }
 

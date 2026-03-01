@@ -81,7 +81,18 @@ public class BookingsController : ControllerBase
 
         var isManagerOrAdmin = User.IsInRole("Admin") || User.IsInRole("OfficeManager");
 
-        await _mediator.Send(new CancelBookingCommand(id, userId, isManagerOrAdmin), ct);
+        try
+        {
+            await _mediator.Send(new CancelBookingCommand(id, userId, isManagerOrAdmin), ct);
+        }
+        catch (InvalidOperationException)
+        {
+            return NotFound();
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return Forbid();
+        }
         return NoContent();
     }
 }

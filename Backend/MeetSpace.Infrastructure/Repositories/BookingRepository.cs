@@ -38,4 +38,13 @@ public class BookingRepository : IBookingRepository
             .Where(b => b.UserId == userId)
             .OrderByDescending(b => b.StartTime)
             .ToListAsync(ct);
+
+    public async Task<IReadOnlyList<Booking>> GetByOfficeAndDateAsync(
+        Guid officeId, DateOnly date, CancellationToken ct = default) =>
+        await _db.Bookings
+            .Include(b => b.Room)
+            .Where(b => b.Room!.OfficeId == officeId
+                     && !b.IsCancelled
+                     && DateOnly.FromDateTime(b.StartTime) == date)
+            .ToListAsync(ct);
 }

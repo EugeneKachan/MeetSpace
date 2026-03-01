@@ -1,6 +1,7 @@
 using MediatR;
 using MeetSpace.Application.Interfaces;
 using MeetSpace.Domain.Entities;
+using MeetSpace.Domain.Enums;
 using Microsoft.AspNetCore.Identity;
 
 namespace MeetSpace.Application.Features.Offices.AssignManager;

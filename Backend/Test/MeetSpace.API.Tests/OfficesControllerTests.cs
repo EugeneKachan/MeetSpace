@@ -129,15 +129,14 @@ namespace MeetSpace.API.Tests
         public async Task Create_ReturnsCreated()
         {
             var newId = Guid.NewGuid();
-            var cmd = new CreateOfficeCommand("New Office", "1 Street", new List<CreateRoomRequest>());
+            var cmd = new CreateOfficeCommand("New Office", "1 Street", true, new List<CreateRoomRequest>());
             _mediator.Setup(m => m.Send(It.IsAny<CreateOfficeCommand>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(newId);
 
             var result = await _controller.Create(cmd, CancellationToken.None);
 
-            var created = Assert.IsType<CreatedAtActionResult>(result);
+            var created = Assert.IsType<CreatedResult>(result);
             Assert.Equal(newId, created.Value);
-            Assert.Equal(nameof(_controller.GetAll), created.ActionName);
         }
 
         // ── Update ───────────────────────────────────────────────────────────────

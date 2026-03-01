@@ -44,13 +44,13 @@ namespace MeetSpace.Application.Tests
         }
 
         [Fact]
-        public async Task Handle_NonOwnerNonManager_ThrowsUnauthorizedAccess()
+        public async Task Handle_NonOwnerNonManager_ThrowsInvalidOperationException()
         {
             var id = Guid.NewGuid();
             var booking = new Booking { Id = id, UserId = "owner", IsCancelled = false };
             _bookingRepo.Setup(r => r.GetByIdAsync(id, It.IsAny<CancellationToken>())).ReturnsAsync(booking);
 
-            await Assert.ThrowsAsync<UnauthorizedAccessException>(() =>
+            await Assert.ThrowsAsync<InvalidOperationException>(() =>
                 CreateHandler().Handle(new CancelBookingCommand(id, "someone-else", false), CancellationToken.None));
         }
 

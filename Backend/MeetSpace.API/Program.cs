@@ -1,7 +1,8 @@
-using MeetSpace.API.Authorization;
 using FluentValidation;
+using MeetSpace.API.Authorization;
 using MeetSpace.Application;
 using MeetSpace.Domain.Entities;
+using MeetSpace.Domain.Enums;
 using MeetSpace.Infrastructure;
 using MeetSpace.Infrastructure.Data;
 using Microsoft.AspNetCore.Identity;
@@ -126,13 +127,13 @@ builder.Services.AddAuthentication(options =>
 builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy(Policies.EmployeeOrAbove, policy =>
-        policy.RequireRole("Employee", "OfficeManager", "Admin"));
+        policy.RequireRole(UserRoles.Employee, UserRoles.OfficeManager, UserRoles.Admin));
 
     options.AddPolicy(Policies.ManagerOrAbove, policy =>
-        policy.RequireRole("OfficeManager", "Admin"));
+        policy.RequireRole(UserRoles.OfficeManager, UserRoles.Admin));
 
     options.AddPolicy(Policies.AdminOnly, policy =>
-        policy.RequireRole("Admin"));
+        policy.RequireRole(UserRoles.Admin));
 });
 
 // Register Application and Infrastructure layers

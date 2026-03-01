@@ -16,4 +16,10 @@ public interface IBookingRepository
 
     /// <summary>Returns all non-cancelled bookings belonging to the given user, newest first.</summary>
     Task<List<Booking>> GetByUserIdAsync(string userId, CancellationToken ct = default);
+
+    /// <summary>
+    /// Returns all non-cancelled bookings for every room in the specified office on the given date (UTC).
+    /// Used to determine room availability when filtering by date/time.
+    /// </summary>
+    Task<IReadOnlyList<Booking>> GetByOfficeAndDateAsync(Guid officeId, DateOnly date, CancellationToken ct = default);
 }

@@ -1,12 +1,13 @@
 #nullable enable
-using System.Security.Claims;
 using MediatR;
 using MeetSpace.API.Authorization;
 using MeetSpace.Application.Features.Bookings.CancelBooking;
 using MeetSpace.Application.Features.Bookings.CreateBooking;
 using MeetSpace.Application.Features.Bookings.GetUserBookings;
+using MeetSpace.Domain.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace MeetSpace.API.Controllers;
 
@@ -79,7 +80,7 @@ public class BookingsController : ControllerBase
                   ?? User.FindFirstValue("sub")
                   ?? string.Empty;
 
-        var isManagerOrAdmin = User.IsInRole("Admin") || User.IsInRole("OfficeManager");
+        var isManagerOrAdmin = User.IsInRole(UserRoles.Admin) || User.IsInRole(UserRoles.OfficeManager);
 
         try
         {

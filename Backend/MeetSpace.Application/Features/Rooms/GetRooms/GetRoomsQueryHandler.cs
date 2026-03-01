@@ -34,8 +34,8 @@ public class GetRoomsQueryHandler : IRequestHandler<GetRoomsQuery, IReadOnlyList
                             TimeRangesOverlap(
                                 request.StartTime.Value,
                                 request.EndTime.Value,
-                                b.StartTime,
-                                b.EndTime))
+                                TimeOnly.FromDateTime(b.StartTime),
+                                TimeOnly.FromDateTime(b.EndTime)))
                 .Select(b => b.RoomId)
                 .Distinct()
                 .ToHashSet();
